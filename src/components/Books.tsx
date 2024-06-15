@@ -1,85 +1,70 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import {
   Box,
   Breadcrumb,
   BreadcrumbItem,
   Center,
   Container,
-  Divider,
   Grid,
   GridItem,
-  Heading,
-  Image,
   Input,
   List,
   ListItem,
   Text,
 } from "@chakra-ui/react";
+import { useQuery } from "react-query";
 import { getBooks } from "../services/fakeBookService";
 import { getGenres } from "../services/fakeGenreService";
-
-export interface Book {
-  id: string;
-  title: string;
-  subtitle: string;
-  type: string;
-  format: string;
-  releaseDate: string;
-  author: string;
-  price: number;
-  publisherRRP: number;
-  pages: number;
-  description: string;
-  dimensions: string;
-  wishList: boolean;
-  isbn: string;
-  publisher: string;
-}
+import BookCard from "./BookCard";
+import { Book } from "./Books.type";
 
 interface Genre {
   id: string;
   name: string;
 }
 
-const Books: React.FC = () => {
-  const [data, setData] = useState<Book[]>([]);
-  const [allBooks, setAllBooks] = useState<Book[]>([]);
-  const [types, setTypes] = useState<Genre[]>([]);
-  const [type, setType] = useState<Genre | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+const fetchBooks = async () => {
+  const books = getBooks();
+  return books;
+};
 
-  useEffect(() => {
-    const result = getBooks();
-    setData(result);
-    setAllBooks(result);
-    const typesResult = getGenres();
-    const genres = [{ id: "", name: "All Genres" }, ...typesResult];
-    setTypes(genres);
-  }, []);
+const fetchGenres = async () => {
+  const genres = getGenres();
+  return genres;
+};
+
+const Books: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [type, setType] = useState<Genre | null>(null);
+
+  const { data: books = [] } = useQuery("books", fetchBooks);
+  const { data: genresData = [] } = useQuery("genres", fetchGenres);
+
+  const genres = [{ id: "", name: "All Genres" }, ...genresData];
 
   const handleGenreSelect = (genre: Genre) => {
     setType(genre);
-    let filtered = allBooks;
-    if (genre.name !== "All Genres")
-      filtered = filtered.filter((m) => m.type === genre.name);
-    setData(filtered);
     setSearchQuery("");
   };
 
   const handleSearch = (query: string) => {
-    let filtered = allBooks;
-    if (query)
-      filtered = filtered.filter((m) =>
-        m.title.toLowerCase().startsWith(query.toLowerCase())
-      );
-    setData(filtered);
     setSearchQuery(query);
     setType(null);
   };
 
-  const count = data.length;
-  if (count === 0) return <Center>There are no books in the database.</Center>;
+  const filteredBooks = books.filter((book: Book) => {
+    if (type && type.name !== "All Genres" && book.type !== type.name) {
+      return false;
+    }
+    if (searchQuery && !book.title.toLowerCase().startsWith(searchQuery.toLowerCase())) {
+      return false;
+    }
+    return true;
+  });
+
+  if (filteredBooks.length === 0) {
+    return <Center>There are no books in the database.</Center>;
+  }
 
   return (
     <Box p={5}>
@@ -93,7 +78,7 @@ const Books: React.FC = () => {
         <Grid templateColumns="repeat(12, 1fr)" gap={6}>
           <GridItem colSpan={{ base: 12, md: 3 }}>
             <List spacing={3}>
-              {types.map((item) => (
+              {genres.map((item) => (
                 <ListItem
                   key={item.id}
                   onClick={() => handleGenreSelect(item)}
@@ -110,7 +95,7 @@ const Books: React.FC = () => {
           </GridItem>
           <GridItem colSpan={{ base: 12, md: 9 }}>
             <Box mb={4}>
-              <Text>Showing {count} books in the database.</Text>
+              <Text>Showing {filteredBooks.length} books in the database.</Text>
               <Input
                 placeholder="Search..."
                 value={searchQuery}
@@ -122,55 +107,13 @@ const Books: React.FC = () => {
               templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
               gap={6}
             >
-              {data.map((item) => (
+              {filteredBooks.map((item: Book) => (
                 <BookCard key={item.id} book={item} />
               ))}
             </Grid>
           </GridItem>
         </Grid>
       </Container>
-    </Box>
-  );
-};
-
-interface BookCardProps {
-  book: Book;
-}
-
-const BookCard: React.FC<BookCardProps> = ({ book }) => {
-  const [imageSrc, setImageSrc] = useState<string>("");
-
-  useEffect(() => {
-    const loadImage = async (isbn: string | undefined) => {
-      try {
-        const image = isbn
-          ? (await import(`../images/${isbn}.jpg`)).default
-          : (await import(`../images/default.jpg`)).default;
-        setImageSrc(image);
-      } catch {
-        setImageSrc((await import(`../images/default.jpg`)).default);
-      }
-    };
-    loadImage(book.isbn);
-  }, [book]);
-
-  return (
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      p={4}
-      as={Link}
-      to={`/books/${book.id}`}
-    >
-      <Image src={imageSrc} alt={book.title} mb={3} />
-      <Box>
-        <Heading size="md">{book.title}</Heading>
-        <Text>{book.subtitle}</Text>
-        <Divider my={2} />
-        <Text>Author: {book.author}</Text>
-        <Text>Price: ${book.price}</Text>
-      </Box>
     </Box>
   );
 };
