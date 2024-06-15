@@ -19,7 +19,7 @@ import {
 import { getBooks } from "../services/fakeBookService";
 import { getGenres } from "../services/fakeGenreService";
 
-interface Book {
+export interface Book {
   id: string;
   title: string;
   subtitle: string;
