@@ -43,6 +43,7 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       display="flex"
       flexDirection="column"
       position="relative"
+      height="100%"
     >
       {book.bestSeller && (
         <Badge
@@ -54,11 +55,35 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
           borderRadius="full"
           px={2}
           py={1}
+          zIndex="2"
         >
           Best Seller
         </Badge>
       )}
-      <Image src={imageSrc} alt={book.title} mb={3} />
+      <Box position="relative">
+        <Image src={imageSrc} alt={book.title} mb={3} />
+        <Box
+          className="description-overlay"
+          position="absolute"
+          top="0"
+          left="0"
+          width="100%"
+          height="100%"
+          bg="rgba(0, 0, 0, 0.7)"
+          color="white"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          opacity="0"
+          transition="opacity 0.3s ease-in-out"
+          _hover={{ opacity: 1 }}
+          p={2}
+          textAlign="center"
+          zIndex="1"
+        >
+          {book.description.slice(0, 200)}...
+        </Box>
+      </Box>
       <Box flex="1" display="flex" flexDirection="column">
         <Heading size="md" mb={2}>
           {book.title}
@@ -68,7 +93,9 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
         <Spacer />
         <Box mt="auto">
           <Text>Author: {book.author}</Text>
-          <Text>Price: ${book.price}</Text>
+          <Text color="red.500" fontSize="lg" fontWeight="bold">
+            Price: ${book.price}
+          </Text>
         </Box>
       </Box>
     </Box>

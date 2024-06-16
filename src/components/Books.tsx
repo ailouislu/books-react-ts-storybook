@@ -13,7 +13,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
 import { getBooks } from "../services/fakeBookService";
 import { getGenres } from "../services/fakeGenreService";
 import BookCard from "./BookCard";
@@ -35,7 +34,6 @@ const fetchGenres = async () => {
 const Books: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [type, setType] = useState<Genre | null>(null);
-  const navigate = useNavigate();
 
   const { data: books = [] } = useQuery("books", fetchBooks);
   const { data: genresData = [] } = useQuery("genres", fetchGenres);
@@ -54,10 +52,6 @@ const Books: React.FC = () => {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setType(genres[0]);
-  };
-
-  const handleBookClick = (bookId: string) => {
-    navigate(`/books/${bookId}`);
   };
 
   const filteredBooks = books.filter((book: Book) => {
@@ -119,7 +113,8 @@ const Books: React.FC = () => {
               gap={6}
             >
               {filteredBooks.map((item: Book) => (
-                <Box key={item.id} onClick={() => handleBookClick(item.id)}>
+                <Box key={item.id} height="100%">
+                  {" "}
                   <BookCard book={item} />
                 </Box>
               ))}
