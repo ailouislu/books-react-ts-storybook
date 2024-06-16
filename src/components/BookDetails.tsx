@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -29,6 +29,7 @@ import { getBooks } from "../services/fakeBookService";
 import { Book } from "./Books.type";
 
 const BookDetails: React.FC = () => {
+  const { bookId } = useParams<{ bookId: string }>();
   const [book, setBook] = useState<Book | null>(null);
   const [imageSrc, setImageSrc] = useState<string>("");
 
@@ -36,10 +37,11 @@ const BookDetails: React.FC = () => {
 
   useEffect(() => {
     const books = getBooks();
-    if (books.length > 0) {
-      setBook(books[0]);
+    const foundBook = books.find((b) => b.id === bookId);
+    if (foundBook) {
+      setBook(foundBook);
     }
-  }, []);
+  }, [bookId]);
 
   useEffect(() => {
     const loadImage = async (isbn: string | undefined) => {
@@ -62,7 +64,7 @@ const BookDetails: React.FC = () => {
   };
 
   const layout = useBreakpointValue({ base: "vertical", md: "horizontal" });
-  const imageSize = useBreakpointValue({ base: "100%", md: "30%" }); // 调整宽屏下的图片大小
+  const imageSize = useBreakpointValue({ base: "100%", md: "30%" });
 
   if (!book) {
     return <Center>Loading...</Center>;
