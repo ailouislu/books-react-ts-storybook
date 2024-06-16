@@ -10,15 +10,14 @@ import BookCard from "../components/BookCard";
 import BookList from "../components/BookList";
 import GenreList from "../components/GenreList";
 import SearchBox from "../components/SearchBox";
-import { JSX } from "react/jsx-runtime";
 
 const queryClient = new QueryClient();
 const books = getBooks();
 const genres = getGenres();
-const firstBook = books.length > 0 ? books[0] : null;
+const firstBook: Book | undefined = books.length > 0 ? books[0] : undefined;
 
 const MemoryRouterDecorator =
-  (initialEntries: string[]) => (Story: JSX.IntrinsicAttributes) => (
+  (initialEntries: string[]) => (Story: React.FC) => (
     <MemoryRouter initialEntries={initialEntries}>
       <ChakraProvider>
         <QueryClientProvider client={queryClient}>
@@ -77,7 +76,7 @@ const SearchBoxTemplate: StoryFn<{
 
 export const BookCardStory = BookCardTemplate.bind({});
 BookCardStory.args = {
-  book: firstBook,
+  book: firstBook!,
 };
 
 export const BookListStory = BookListTemplate.bind({});
