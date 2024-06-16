@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Divider,
-  Heading,
-  Image,
-  Text,
-  Spacer,
-  Badge,
-} from "@chakra-ui/react";
+import { Box, Divider, Heading, Image, Text, Badge } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { Book } from "./Books.type";
 
@@ -42,8 +34,8 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       to={`/books/${book.id}`}
       display="flex"
       flexDirection="column"
-      position="relative"
       height="100%"
+      position="relative"
     >
       {book.bestSeller && (
         <Badge
@@ -60,38 +52,51 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
           Best Seller
         </Badge>
       )}
-      <Box position="relative">
-        <Image src={imageSrc} alt={book.title} mb={3} />
-        <Box
-          className="description-overlay"
-          position="absolute"
-          top="0"
-          left="0"
-          width="100%"
-          height="100%"
-          bg="rgba(0, 0, 0, 0.7)"
-          color="white"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          opacity="0"
-          transition="opacity 0.3s ease-in-out"
-          _hover={{ opacity: 1 }}
-          p={2}
-          textAlign="center"
-          zIndex="1"
-        >
-          {book.description.slice(0, 200)}...
+      <Box
+        flex="1"
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+      >
+        <Box>
+          <Box position="relative">
+            <Image
+              src={imageSrc}
+              alt={book.title}
+              mb={3}
+              height="400px"
+              objectFit="contain"
+              width="100%"
+            />
+            <Box
+              className="description-overlay"
+              position="absolute"
+              top="0"
+              left="0"
+              width="100%"
+              height="100%"
+              bg="rgba(0, 0, 0, 0.7)"
+              color="white"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              opacity="0"
+              transition="opacity 0.3s ease-in-out"
+              _hover={{ opacity: 1 }}
+              p={2}
+              textAlign="center"
+              zIndex="1"
+            >
+              {book.description.slice(0, 200)}...
+            </Box>
+          </Box>
+          <Heading size="md" mb={2}>
+            {book.title}
+          </Heading>
+          <Text mb={2}>{book.subtitle}</Text>
         </Box>
-      </Box>
-      <Box flex="1" display="flex" flexDirection="column">
-        <Heading size="md" mb={2}>
-          {book.title}
-        </Heading>
-        <Text mb={2}>{book.subtitle}</Text>
-        <Divider my={2} />
-        <Spacer />
-        <Box mt="auto">
+        <Box mt={2}>
+          <Divider my={2} />
           <Text>Author: {book.author}</Text>
           <Text color="red.500" fontSize="lg" fontWeight="bold">
             Price: ${book.price}
