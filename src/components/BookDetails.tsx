@@ -25,23 +25,15 @@ import {
   useBreakpointValue,
   Flex,
 } from "@chakra-ui/react";
-import { getBooks } from "../services/fakeBookService";
-import { Book } from "./Books.type";
+import { useBooksData } from "../hooks/useBooksData";
 
 const BookDetails: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
-  const [book, setBook] = useState<Book | null>(null);
   const [imageSrc, setImageSrc] = useState<string>("");
+  const { getBookById } = useBooksData();
+  const book = getBookById(bookId ?? "");
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const books = getBooks();
-    const foundBook = books.find((b) => b.id === bookId);
-    if (foundBook) {
-      setBook(foundBook);
-    }
-  }, [bookId]);
 
   useEffect(() => {
     const loadImage = async (isbn: string | undefined) => {

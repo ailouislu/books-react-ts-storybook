@@ -12,50 +12,44 @@ import {
   ListItem,
   Text,
 } from "@chakra-ui/react";
-import { useQuery } from "react-query";
-import { getBooks } from "../services/fakeBookService";
-import { getGenres } from "../services/fakeGenreService";
+import { useNavigate } from "react-router-dom";
+import { useBooksData } from "../hooks/useBooksData";
 import BookCard from "./BookCard";
-import { Book } from "./Books.type";
-
-interface Genre {
-  id: string;
-  name: string;
-}
-
-const fetchBooks = async () => {
-  return getBooks();
-};
-
-const fetchGenres = async () => {
-  return getGenres();
-};
+import { Book, Genre } from "./Books.type";
 
 const Books: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [type, setType] = useState<Genre | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
+  const navigate = useNavigate();
 
-  const { data: books = [] } = useQuery("books", fetchBooks);
-  const { data: genresData = [] } = useQuery("genres", fetchGenres);
+  const { books, genresData } = useBooksData();
 
   const genres = [{ id: "", name: "All Genres" }, ...genresData];
 
   useEffect(() => {
-    setType(genres[0]);
+    setSelectedGenre(genres[0]);
   }, [genresData]);
 
   const handleGenreSelect = (genre: Genre) => {
-    setType(genre);
+    setSelectedGenre(genre);
     setSearchQuery("");
   };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setType(genres[0]);
+    setSelectedGenre(genres[0]);
+  };
+
+  const handleBookClick = (bookId: string) => {
+    navigate(`/books/${bookId}`);
   };
 
   const filteredBooks = books.filter((book: Book) => {
-    if (type && type.name !== "All Genres" && book.type !== type.name) {
+    if (
+      selectedGenre &&
+      selectedGenre.name !== "All Genres" &&
+      book.type !== selectedGenre.name
+    ) {
       return false;
     }
     if (
@@ -89,8 +83,8 @@ const Books: React.FC = () => {
                   onClick={() => handleGenreSelect(item)}
                   cursor="pointer"
                   p={2}
-                  bg={item.id === type?.id ? "blue.500" : "white"}
-                  color={item.id === type?.id ? "white" : "black"}
+                  bg={item.id === selectedGenre?.id ? "blue.500" : "white"}
+                  color={item.id === selectedGenre?.id ? "white" : "black"}
                   borderRadius="md"
                 >
                   {item.name}
@@ -113,8 +107,7 @@ const Books: React.FC = () => {
               gap={6}
             >
               {filteredBooks.map((item: Book) => (
-                <Box key={item.id} height="100%">
-                  {" "}
+                <Box key={item.id} onClick={() => handleBookClick(item.id)}>
                   <BookCard book={item} />
                 </Box>
               ))}

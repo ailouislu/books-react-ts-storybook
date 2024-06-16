@@ -16,3 +16,8 @@ export interface Book {
     isbn: string;
     publisher: string;
   }
+
+  export interface Genre {
+    id: string;
+    name: string;
+  }
