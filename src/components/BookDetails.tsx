@@ -23,9 +23,10 @@ import {
   AccordionIcon,
   Text,
   useBreakpointValue,
+  Flex,
 } from "@chakra-ui/react";
 import { getBooks } from "../services/fakeBookService";
-import { Book } from "./Books";
+import { Book } from "./Books.type";
 
 const BookDetails: React.FC = () => {
   const [book, setBook] = useState<Book | null>(null);
@@ -61,7 +62,7 @@ const BookDetails: React.FC = () => {
   };
 
   const layout = useBreakpointValue({ base: "vertical", md: "horizontal" });
-  const imageSize = useBreakpointValue({ base: "100%", md: "50%" });
+  const imageSize = useBreakpointValue({ base: "100%", md: "30%" }); // 调整宽屏下的图片大小
 
   if (!book) {
     return <Center>Loading...</Center>;
@@ -89,10 +90,11 @@ const BookDetails: React.FC = () => {
               borderRadius="lg"
               w="100%"
             />
-            <br />
-            <Button mt={4} colorScheme="blue" onClick={handleBackToBooks}>
-              Back
-            </Button>
+            <Flex justify="center" mt={4}>
+              <Button colorScheme="blue" onClick={handleBackToBooks}>
+                Back
+              </Button>
+            </Flex>
           </Box>
 
           <Box flex="1">
