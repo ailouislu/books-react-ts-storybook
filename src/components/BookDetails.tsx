@@ -112,7 +112,11 @@ const BookDetails: React.FC = () => {
                   {book.author}
                 </Box>
               </Text>
-              <Box color="red.500">Best Seller</Box>
+              {book.bestSeller && (
+                <Box color="red.500" fontWeight="bold">
+                  Best Seller
+                </Box>
+              )}
             </HStack>
             <Divider my={4} />
             <HStack justify="space-between" w="100%">
@@ -189,7 +193,11 @@ const BookDetails: React.FC = () => {
                   {book.author}
                 </Box>
               </Text>
-              <Box color="red.500">Best Seller</Box>
+              {book.bestSeller && (
+                <Box color="red.500" fontWeight="bold">
+                  Best Seller
+                </Box>
+              )}
               <Divider my={4} />
               <Badge colorScheme="blue">{book.type}</Badge>
               <Box>{book.format}</Box>

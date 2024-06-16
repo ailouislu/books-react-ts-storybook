@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Divider, Heading, Image, Text, VStack, Spacer } from "@chakra-ui/react";
+import {
+  Box,
+  Divider,
+  Heading,
+  Image,
+  Text,
+  Spacer,
+  Badge,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { Book } from "./Books.type";
 
@@ -34,10 +42,27 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       to={`/books/${book.id}`}
       display="flex"
       flexDirection="column"
+      position="relative"
     >
+      {book.bestSeller && (
+        <Badge
+          position="absolute"
+          top="0"
+          right="0"
+          bg="red.500"
+          color="white"
+          borderRadius="full"
+          px={2}
+          py={1}
+        >
+          Best Seller
+        </Badge>
+      )}
       <Image src={imageSrc} alt={book.title} mb={3} />
       <Box flex="1" display="flex" flexDirection="column">
-        <Heading size="md" mb={2}>{book.title}</Heading>
+        <Heading size="md" mb={2}>
+          {book.title}
+        </Heading>
         <Text mb={2}>{book.subtitle}</Text>
         <Divider my={2} />
         <Spacer />

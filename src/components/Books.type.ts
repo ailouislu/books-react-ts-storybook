@@ -12,6 +12,7 @@ export interface Book {
     description: string;
     dimensions: string;
     wishList: boolean;
+    bestSeller: boolean;
     isbn: string;
     publisher: string;
   }
