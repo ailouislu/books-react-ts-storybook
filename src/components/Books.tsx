@@ -7,6 +7,7 @@ import {
   Container,
   Grid,
   GridItem,
+  Heading,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useBooksData } from "../hooks/useBooksData";
@@ -65,13 +66,10 @@ const Books: React.FC = () => {
 
   return (
     <Box p={5}>
-      <Breadcrumb mb={4}>
-        <BreadcrumbItem isCurrentPage>
-          <Box>Books</Box>
-        </BreadcrumbItem>
-      </Breadcrumb>
-
-      <Container maxW="container.xl">
+      <Container maxW="container.xl" px={0}>
+        <Heading as="h2" size="xl" mb={6}>
+          Books
+        </Heading>
         <Grid templateColumns="repeat(12, 1fr)" gap={6}>
           <GridItem colSpan={{ base: 12, md: 3 }}>
             <GenreList
