@@ -24,6 +24,7 @@ import {
   Text,
   useBreakpointValue,
   Flex,
+  BreadcrumbLink,
 } from "@chakra-ui/react";
 import { useBooksStore } from "../hooks/useBooksData";
 
@@ -70,14 +71,14 @@ const BookDetails: React.FC = () => {
 
   return (
     <Box p={5} maxW="1200px" mx="auto">
-      <Breadcrumb mb={4}>
+      <Breadcrumb spacing="8px" mb={4}>
         <BreadcrumbItem>
-          <Button colorScheme="blue" onClick={handleBackToBooks}>
+          <BreadcrumbLink onClick={handleBackToBooks} color="blue.500">
             Books
-          </Button>
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbItem isCurrentPage>
-          <Box>{book.title}</Box>
+          <Text>{book.title}</Text>
         </BreadcrumbItem>
       </Breadcrumb>
 

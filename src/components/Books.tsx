@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
   Center,
   Container,
   Grid,
   GridItem,
-  Heading,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useBooksStore } from "../hooks/useBooksData";
@@ -70,9 +72,14 @@ const Books: React.FC = () => {
   return (
     <Box p={5}>
       <Container maxW="container.xl" px={0}>
-        <Heading as="h2" size="xl" mb={6}>
-          Books
-        </Heading>
+        <Breadcrumb mb={6}>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <BreadcrumbLink href="#">Books</BreadcrumbLink>
+          </BreadcrumbItem>
+        </Breadcrumb>
         <Grid templateColumns="repeat(12, 1fr)" gap={6}>
           <GridItem colSpan={{ base: 12, md: 3 }}>
             <GenreList
