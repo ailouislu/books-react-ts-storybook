@@ -8,9 +8,11 @@ import {
   Container,
   Grid,
   GridItem,
+  Spinner,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useBooksStore } from "../hooks/useBooksData";
+import { useBooksData } from "../hooks/useBooksData";
+import { useGenresStore } from "../hooks/UseGenresData";
 import BookList from "./BookList";
 import GenreList from "./GenreList";
 import SearchBar from "./SearchBar";
@@ -21,17 +23,24 @@ const Books: React.FC = () => {
   const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
   const navigate = useNavigate();
 
-  const { books, genres, fetchBooks, fetchGenres } = useBooksStore();
+  const { books } = useBooksData();
+  const {
+    genres,
+    isLoading: isGenresLoading,
+    error: genresError,
+    fetchGenres,
+  } = useGenresStore();
 
   useEffect(() => {
-    fetchBooks();
     fetchGenres();
-  }, []);
+  }, [fetchGenres]);
 
   const allGenres = [{ id: "", name: "All Genres" }, ...genres];
 
   useEffect(() => {
-    setSelectedGenre(allGenres[0]);
+    if (genres.length > 0) {
+      setSelectedGenre(allGenres[0]);
+    }
   }, [genres]);
 
   const handleGenreSelect = (genre: Genre) => {
@@ -64,6 +73,18 @@ const Books: React.FC = () => {
     }
     return true;
   });
+
+  if (isGenresLoading) {
+    return (
+      <Center>
+        <Spinner />
+      </Center>
+    );
+  }
+
+  if (genresError) {
+    return <Center>An error occurred while fetching genres.</Center>;
+  }
 
   if (filteredBooks.length === 0) {
     return <Center>There are no books in the database.</Center>;

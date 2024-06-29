@@ -26,21 +26,15 @@ import {
   Flex,
   BreadcrumbLink,
 } from "@chakra-ui/react";
-import { useBooksStore } from "../hooks/useBooksData";
+import { useBooksData } from "../hooks/useBooksData";
 
 const BookDetails: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const [imageSrc, setImageSrc] = useState<string>("");
-  const { books, getBookById, fetchBooks } = useBooksStore();
+  const { getBookById } = useBooksData();
   const book = getBookById(bookId ?? "");
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (books.length === 0) {
-      fetchBooks();
-    }
-  }, [books, fetchBooks]);
 
   useEffect(() => {
     const loadImage = async (isbn: string | undefined) => {
