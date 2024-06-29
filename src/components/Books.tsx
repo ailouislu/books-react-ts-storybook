@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Breadcrumb,
-  BreadcrumbItem,
   Center,
   Container,
   Grid,
@@ -10,7 +8,7 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useBooksData } from "../hooks/useBooksData";
+import { useBooksStore } from "../hooks/useBooksData";
 import BookList from "./BookList";
 import GenreList from "./GenreList";
 import SearchBar from "./SearchBar";
@@ -21,13 +19,18 @@ const Books: React.FC = () => {
   const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
   const navigate = useNavigate();
 
-  const { books, genresData } = useBooksData();
-
-  const genres = [{ id: "", name: "All Genres" }, ...genresData];
+  const { books, genres, fetchBooks, fetchGenres } = useBooksStore();
 
   useEffect(() => {
-    setSelectedGenre(genres[0]);
-  }, [genresData]);
+    fetchBooks();
+    fetchGenres();
+  }, []);
+
+  const allGenres = [{ id: "", name: "All Genres" }, ...genres];
+
+  useEffect(() => {
+    setSelectedGenre(allGenres[0]);
+  }, [genres]);
 
   const handleGenreSelect = (genre: Genre) => {
     setSelectedGenre(genre);
@@ -36,7 +39,7 @@ const Books: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setSelectedGenre(genres[0]);
+    setSelectedGenre(allGenres[0]);
   };
 
   const handleBookClick = (bookId: string) => {
@@ -73,7 +76,7 @@ const Books: React.FC = () => {
         <Grid templateColumns="repeat(12, 1fr)" gap={6}>
           <GridItem colSpan={{ base: 12, md: 3 }}>
             <GenreList
-              genres={genres}
+              genres={allGenres}
               selectedGenre={selectedGenre}
               onGenreSelect={handleGenreSelect}
             />
