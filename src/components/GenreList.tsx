@@ -13,9 +13,11 @@ const GenreList: React.FC<GenreListProps> = ({
   selectedGenre,
   onGenreSelect,
 }) => {
+  const allGenres = [{ id: "", name: "All Genres" }, ...genres];
+
   return (
     <List spacing={3}>
-      {genres.map((genre) => (
+      {allGenres.map((genre) => (
         <ListItem
           key={genre.id}
           onClick={() => onGenreSelect(genre)}

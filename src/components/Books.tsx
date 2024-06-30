@@ -35,11 +35,9 @@ const Books: React.FC = () => {
     fetchGenres();
   }, [fetchGenres]);
 
-  const allGenres = [{ id: "", name: "All Genres" }, ...genres];
-
   useEffect(() => {
     if (genres.length > 0) {
-      setSelectedGenre(allGenres[0]);
+      setSelectedGenre({ id: "", name: "All Genres" });
     }
   }, [genres]);
 
@@ -50,7 +48,7 @@ const Books: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setSelectedGenre(allGenres[0]);
+    setSelectedGenre({ id: "", name: "All Genres" });
   };
 
   const handleBookClick = (bookId: string) => {
@@ -104,7 +102,7 @@ const Books: React.FC = () => {
         <Grid templateColumns="repeat(12, 1fr)" gap={6}>
           <GridItem colSpan={{ base: 12, md: 3 }}>
             <GenreList
-              genres={allGenres}
+              genres={genres}
               selectedGenre={selectedGenre}
               onGenreSelect={handleGenreSelect}
             />
