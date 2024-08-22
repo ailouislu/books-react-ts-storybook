@@ -1,245 +1,88 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect } from "react";
 import {
   Box,
-  Button,
-  Badge,
-  Breadcrumb,
-  BreadcrumbItem,
-  Center,
   Image,
-  Heading,
-  HStack,
-  VStack,
-  Table,
-  Tbody,
-  Tr,
-  Td,
-  Divider,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Text,
-  useBreakpointValue,
-  Flex,
-  BreadcrumbLink,
+  VStack,
+  HStack,
+  Badge,
+  Heading,
+  Spinner,
 } from "@chakra-ui/react";
-import { useBooksData } from "../hooks/useBooksData";
+import { useOpenLibraryService } from "../hooks/useOpenLibraryService";
 
-const BookDetails: React.FC = () => {
-  const { bookId } = useParams<{ bookId: string }>();
-  const [imageSrc, setImageSrc] = useState<string>("");
-  const { getBookById } = useBooksData();
-  const book = getBookById(bookId ?? "");
+interface BookDetailsProps {
+  bookKey: string;
+}
 
-  const navigate = useNavigate();
+export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
+  const { book, isLoading, error, getBookDetails } = useOpenLibraryService();
 
   useEffect(() => {
-    const loadImage = async (isbn: string | undefined) => {
-      try {
-        const image = isbn
-          ? (await import(`../images/${isbn}.jpg`)).default
-          : (await import(`../images/default.jpg`)).default;
-        setImageSrc(image);
-      } catch {
-        setImageSrc((await import(`../images/default.jpg`)).default);
-      }
-    };
-    if (book) {
-      loadImage(book.isbn);
-    }
-  }, [book]);
+    getBookDetails(bookKey);
+  }, [bookKey, getBookDetails]);
 
-  const handleBackToBooks = () => {
-    navigate("/books");
-  };
+  if (isLoading) {
+    return <Spinner />;
+  }
 
-  const layout = useBreakpointValue({ base: "vertical", md: "horizontal" });
-  const imageSize = useBreakpointValue({ base: "100%", md: "30%" });
+  if (error) {
+    return <Text color="red.500">{error}</Text>;
+  }
 
   if (!book) {
-    return <Center>Loading...</Center>;
+    return <Text>No book details available.</Text>;
   }
 
   return (
-    <Box p={5} maxW="1200px" mx="auto">
-      <Breadcrumb spacing="8px" mb={4}>
-        <BreadcrumbItem>
-          <BreadcrumbLink onClick={handleBackToBooks} color="blue.500">
-            Books
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbItem isCurrentPage>
-          <Text>{book.title}</Text>
-        </BreadcrumbItem>
-      </Breadcrumb>
-
-      {layout === "horizontal" ? (
-        <HStack spacing={10} align="flex-start">
-          <Box w={imageSize}>
-            <Image
-              src={imageSrc}
-              alt={`${book.title} cover`}
-              borderRadius="lg"
-              w="100%"
-            />
-            <Flex justify="center" mt={4}>
-              <Button colorScheme="blue" onClick={handleBackToBooks}>
-                Back
-              </Button>
-            </Flex>
-          </Box>
-
-          <Box flex="1">
-            <Heading>{book.title}</Heading>
-            <Heading size="md" mt={2}>
-              {book.subtitle}
-            </Heading>
-            <Divider my={4} />
-            <HStack justify="space-between" w="100%">
-              <Text>
-                By{" "}
-                <Box as="span" color="green.500">
-                  {book.author}
-                </Box>
-              </Text>
-              {book.bestSeller && (
-                <Box color="red.500" fontWeight="bold">
-                  Best Seller
-                </Box>
-              )}
+    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
+      <HStack spacing={4} align="start">
+        <Image
+          src={
+            book.covers
+              ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
+              : "/placeholder-book.png"
+          }
+          alt={`Cover of ${book.title}`}
+          maxW="150px"
+          objectFit="cover"
+        />
+        <VStack align="start" spacing={2}>
+          <Heading as="h2" size="lg">
+            {book.title}
+          </Heading>
+          <Text fontSize="md">
+            by{" "}
+            {book.authors
+              ? book.authors.map((author) => author.name).join(", ")
+              : "Unknown Author"}
+          </Text>
+          {book.first_publish_date && (
+            <Text fontSize="sm" color="gray.600">
+              First published: {book.first_publish_date}
+            </Text>
+          )}
+          {book.subjects && (
+            <HStack>
+              {book.subjects.slice(0, 3).map((subject, index) => (
+                <Badge key={index} colorScheme="blue">
+                  {subject}
+                </Badge>
+              ))}
             </HStack>
-            <Divider my={4} />
-            <HStack justify="space-between" w="100%">
-              <Badge colorScheme="blue">{book.type}</Badge>
-              <Box>{book.format}</Box>
-            </HStack>
-            <Divider my={4} />
-            <Box>Publisher RRP ${book.publisherRRP}</Box>
-            <Box color="red.500" fontSize="2xl" fontWeight="bold">
-              Our price ${book.price}
-            </Box>
-            <Accordion allowToggle mt={4}>
-              <AccordionItem>
-                <AccordionButton>
-                  <Box flex="1" textAlign="left">
-                    Description
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>{book.description}</AccordionPanel>
-              </AccordionItem>
-            </Accordion>
-            <Table variant="striped" mt={4}>
-              <Tbody>
-                <Tr>
-                  <Td fontWeight="bold">ISBN</Td>
-                  <Td>{book.isbn}</Td>
-                </Tr>
-                <Tr>
-                  <Td fontWeight="bold">No. Of Pages</Td>
-                  <Td>{book.pages}</Td>
-                </Tr>
-                <Tr>
-                  <Td fontWeight="bold">Dimensions</Td>
-                  <Td>{book.dimensions}</Td>
-                </Tr>
-                <Tr>
-                  <Td fontWeight="bold">On Sale Date</Td>
-                  <Td>{book.releaseDate}</Td>
-                </Tr>
-                <Tr>
-                  <Td fontWeight="bold">Publisher</Td>
-                  <Td>{book.publisher}</Td>
-                </Tr>
-              </Tbody>
-            </Table>
-          </Box>
-        </HStack>
-      ) : (
-        <VStack spacing={10} align="flex-start">
-          <Box w={imageSize}>
-            <Image
-              src={imageSrc}
-              alt={`${book.title} cover`}
-              borderRadius="lg"
-              w="100%"
-            />
-            <br />
-            <Button mt={4} colorScheme="blue" onClick={handleBackToBooks}>
-              Back
-            </Button>
-          </Box>
-
-          <Box flex="1" w="100%">
-            <Heading>{book.title}</Heading>
-            <Heading size="md" mt={2}>
-              {book.subtitle}
-            </Heading>
-            <Divider my={4} />
-            <VStack spacing={4} w="100%">
-              <Text>
-                By{" "}
-                <Box as="span" color="green.500">
-                  {book.author}
-                </Box>
-              </Text>
-              {book.bestSeller && (
-                <Box color="red.500" fontWeight="bold">
-                  Best Seller
-                </Box>
-              )}
-              <Divider my={4} />
-              <Badge colorScheme="blue">{book.type}</Badge>
-              <Box>{book.format}</Box>
-              <Divider my={4} />
-              <Box>Publisher RRP ${book.publisherRRP}</Box>
-              <Box color="red.500" fontSize="2xl" fontWeight="bold">
-                Our price ${book.price}
-              </Box>
-              <Accordion allowToggle mt={4} w="100%">
-                <AccordionItem>
-                  <AccordionButton>
-                    <Box flex="1" textAlign="left">
-                      Description
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                  <AccordionPanel pb={4}>{book.description}</AccordionPanel>
-                </AccordionItem>
-              </Accordion>
-              <Table variant="striped" mt={4} w="100%">
-                <Tbody>
-                  <Tr>
-                    <Td fontWeight="bold">ISBN</Td>
-                    <Td>{book.isbn}</Td>
-                  </Tr>
-                  <Tr>
-                    <Td fontWeight="bold">No. Of Pages</Td>
-                    <Td>{book.pages}</Td>
-                  </Tr>
-                  <Tr>
-                    <Td fontWeight="bold">Dimensions</Td>
-                    <Td>{book.dimensions}</Td>
-                  </Tr>
-                  <Tr>
-                    <Td fontWeight="bold">On Sale Date</Td>
-                    <Td>{book.releaseDate}</Td>
-                  </Tr>
-                  <Tr>
-                    <Td fontWeight="bold">Publisher</Td>
-                    <Td>{book.publisher}</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
-            </VStack>
-          </Box>
+          )}
+          {book.number_of_pages && (
+            <Text fontSize="sm">Pages: {book.number_of_pages}</Text>
+          )}
+          {book.description && (
+            <Text noOfLines={3} fontSize="sm">
+              {typeof book.description === "string"
+                ? book.description
+                : book.description.value}
+            </Text>
+          )}
         </VStack>
-      )}
+      </HStack>
     </Box>
   );
 };
-
-export default BookDetails;
