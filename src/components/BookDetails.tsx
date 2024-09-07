@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Image,
@@ -8,6 +8,7 @@ import {
   Badge,
   Heading,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { useOpenLibraryService } from "../hooks/useOpenLibraryService";
 
@@ -17,6 +18,7 @@ interface BookDetailsProps {
 
 export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
   const { book, isLoading, error, getBookDetails } = useOpenLibraryService();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     getBookDetails(bookKey);
@@ -34,28 +36,53 @@ export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
     return <Text>No book details available.</Text>;
   }
 
+  const getAuthors = () => {
+    if (book.authors && book.authors.length > 0) {
+      return book.authors.map((author) => author.author.name).join("、");
+    }
+    return "";
+  };
+
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
       <HStack spacing={4} align="start">
-        <Image
-          src={
-            book.covers
-              ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
-              : "/placeholder-book.png"
-          }
-          alt={`Cover of ${book.title}`}
-          maxW="150px"
-          objectFit="cover"
-        />
+        <Box width="150px" height="200px" position="relative">
+          {!imageLoaded && (
+            <Center
+              position="absolute"
+              top="0"
+              left="0"
+              width="100%"
+              height="100%"
+            >
+              <Spinner />
+            </Center>
+          )}
+          <Image
+            src={
+              book.covers
+                ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
+                : "https://via.placeholder.com/150x200?text=No+Image"
+            }
+            alt={`Cover of ${book.title}`}
+            maxW="150px"
+            objectFit="cover"
+            onLoad={() => setImageLoaded(true)}
+            opacity={imageLoaded ? 1 : 0}
+            transition="opacity 0.3s"
+          />
+        </Box>
         <VStack align="start" spacing={2}>
           <Heading as="h2" size="lg">
             {book.title}
           </Heading>
           <Text fontSize="md">
-            by{" "}
-            {book.authors
-              ? book.authors.map((author) => author.name).join(", ")
-              : "Unknown Author"}
+            by
+            {getAuthors() && (
+              <Text as="span" fontWeight="bold" ml={1}>
+                {getAuthors()}
+              </Text>
+            )}
           </Text>
           {book.first_publish_date && (
             <Text fontSize="sm" color="gray.600">
@@ -66,13 +93,10 @@ export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
             <HStack>
               {book.subjects.slice(0, 3).map((subject, index) => (
                 <Badge key={index} colorScheme="blue">
-                  {subject}
+                  {subject.toUpperCase()}
                 </Badge>
               ))}
             </HStack>
-          )}
-          {book.number_of_pages && (
-            <Text fontSize="sm">Pages: {book.number_of_pages}</Text>
           )}
           {book.description && (
             <Text noOfLines={3} fontSize="sm">

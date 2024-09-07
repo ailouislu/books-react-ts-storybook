@@ -17,14 +17,26 @@ export interface OpenLibraryBook {
 
 export interface OpenLibraryBookDetails {
   title: string;
-  authors: { name: string }[];
-  description?: {
-    value: string;
-  };
+  authors: {
+    author: {
+      key: string;
+      name: string;
+    };
+  }[];
+  description?:
+    | {
+        value: string;
+      }
+    | string;
   covers?: number[];
   subjects?: string[];
   first_publish_date?: string;
   number_of_pages?: number;
+}
+
+export interface OpenLibraryAuthor {
+  key: string;
+  name: string;
 }
 
 export interface Genre {
