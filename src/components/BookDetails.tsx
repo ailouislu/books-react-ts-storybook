@@ -18,11 +18,26 @@ interface BookDetailsProps {
 
 export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
   const { book, isLoading, error, getBookDetails } = useOpenLibraryService();
+  const [imageSrc, setImageSrc] = useState<string>("");
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     getBookDetails(bookKey);
   }, [bookKey, getBookDetails]);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        const image = book?.covers?.[0]
+          ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
+          : (await import(`../images/default.jpg`)).default;
+        setImageSrc(image);
+      } catch {
+        setImageSrc((await import(`../images/default.jpg`)).default);
+      }
+    };
+    loadImage();
+  }, [book]);
 
   if (isLoading) {
     return <Spinner />;
@@ -59,12 +74,8 @@ export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
             </Center>
           )}
           <Image
-            src={
-              book.covers
-                ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
-                : "https://via.placeholder.com/150x200?text=No+Image"
-            }
-            alt={`Cover of ${book.title}`}
+            src={imageSrc}
+            alt={`Cover of ${book?.title}`}
             maxW="150px"
             objectFit="cover"
             onLoad={() => setImageLoaded(true)}
