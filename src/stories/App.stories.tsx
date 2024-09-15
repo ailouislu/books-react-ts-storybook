@@ -4,7 +4,6 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import App from "../App";
 import Books from "../components/Books";
-import BookDetails from "../components/BookDetails";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +18,6 @@ export default {
             <Routes>
               <Route path="/" element={<Story />} />
               <Route path="/books" element={<Books />} />
-              <Route path="/books/:bookId" element={<BookDetails />} />
             </Routes>
           </ChakraProvider>
         </QueryClientProvider>

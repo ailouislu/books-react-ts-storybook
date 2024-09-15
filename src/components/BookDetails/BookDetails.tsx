@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Image,
@@ -10,34 +10,22 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
-import { useOpenLibraryService } from "../hooks/useOpenLibraryService";
+import { OpenLibraryBookDetails } from "../Books.type";
 
 interface BookDetailsProps {
-  bookKey: string;
+  book: OpenLibraryBookDetails;
+  imageSrc: string;
+  isLoading: boolean;
+  error: string | null;
 }
 
-export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
-  const { book, isLoading, error, getBookDetails } = useOpenLibraryService();
-  const [imageSrc, setImageSrc] = useState<string>("");
+export const BookDetails: React.FC<BookDetailsProps> = ({
+  book,
+  imageSrc,
+  isLoading,
+  error,
+}) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  useEffect(() => {
-    getBookDetails(bookKey);
-  }, [bookKey, getBookDetails]);
-
-  useEffect(() => {
-    const loadImage = async () => {
-      try {
-        const image = book?.covers?.[0]
-          ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
-          : (await import(`../images/default.jpg`)).default;
-        setImageSrc(image);
-      } catch {
-        setImageSrc((await import(`../images/default.jpg`)).default);
-      }
-    };
-    loadImage();
-  }, [book]);
 
   if (isLoading) {
     return <Spinner />;
@@ -45,10 +33,6 @@ export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
 
   if (error) {
     return <Text color="red.500">{error}</Text>;
-  }
-
-  if (!book) {
-    return <Text>No book details available.</Text>;
   }
 
   const getAuthors = () => {
@@ -75,7 +59,7 @@ export const BookDetails: React.FC<BookDetailsProps> = ({ bookKey }) => {
           )}
           <Image
             src={imageSrc}
-            alt={`Cover of ${book?.title}`}
+            alt={`Cover of ${book.title}`}
             maxW="150px"
             objectFit="cover"
             onLoad={() => setImageLoaded(true)}

@@ -50,10 +50,11 @@ export const useOpenLibraryService = () => {
   const getBookDetails = useCallback(async (bookKey: string) => {
     setIsLoading(true);
     setError(null);
+    setBook(null);  // Reset book state before fetching new details
 
     try {
       const response = await axios.get<OpenLibraryBookDetails>(
-        `${BASE_URL}${bookKey}.json`
+        `${BASE_URL}/works/${bookKey}.json`
       );
       const bookData = response.data;
 
@@ -69,7 +70,11 @@ export const useOpenLibraryService = () => {
 
       setBook(bookData);
     } catch (err) {
-      setError("Failed to fetch book details. Please try again.");
+      if (axios.isAxiosError(err)) {
+        setError(`Failed to fetch book details: ${err.message}`);
+      } else {
+        setError("An unknown error occurred while fetching book details.");
+      }
       console.error("Error fetching book details:", err);
     } finally {
       setIsLoading(false);

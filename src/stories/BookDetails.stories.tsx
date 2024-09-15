@@ -1,10 +1,12 @@
-import { StoryFn, Meta } from "@storybook/react";
-import { BookDetails } from "../components/BookDetails";
+import React from "react";
+import { Meta, StoryObj } from "@storybook/react";
 import { ChakraProvider } from "@chakra-ui/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { BookPage } from "../components/BookDetails/BookPage";
 
-export default {
-  title: "Components/BookDetails",
-  component: BookDetails,
+const meta: Meta<typeof BookPage> = {
+  title: "Components/BookPage",
+  component: BookPage,
   decorators: [
     (Story) => (
       <ChakraProvider>
@@ -12,48 +14,27 @@ export default {
       </ChakraProvider>
     ),
   ],
-} as Meta;
+};
 
-const Template: StoryFn<{ bookKey: string }> = (args) => (
-  <BookDetails {...args} />
+export default meta;
+type Story = StoryObj<typeof BookPage>;
+
+const BookPageWrapper: React.FC<{ bookKey: string }> = ({ bookKey }) => (
+  <MemoryRouter initialEntries={[`/book/${bookKey}`]}>
+    <Routes>
+      <Route path="/book/:bookKey" element={<BookPage />} />
+    </Routes>
+  </MemoryRouter>
 );
 
-export const MrFox = Template.bind({});
-MrFox.args = {
-  bookKey: "/works/OL45804W",
+export const FantasticMrFox: Story = {
+  render: () => <BookPageWrapper bookKey="OL45804W" />,
 };
 
-export const HarryPotter = Template.bind({});
-HarryPotter.args = {
-  bookKey: "/works/OL82586W",
+export const HarryPotter: Story = {
+  render: () => <BookPageWrapper bookKey="OL82586W" />,
 };
 
-export const GoodOmens = Template.bind({});
-GoodOmens.args = {
-  bookKey: "/works/OL27877W",
-};
-
-export const AmericanGods = Template.bind({});
-AmericanGods.args = {
-  bookKey: "/works/OL7826036W",
-};
-
-export const PrideAndPrejudice = Template.bind({});
-PrideAndPrejudice.args = {
-  bookKey: "/works/OL1394864W",
-};
-
-export const GoodWives = Template.bind({});
-GoodWives.args = {
-  bookKey: "/works/OL17860744W",
-};
-
-export const TheGunsOfAugust = Template.bind({});
-TheGunsOfAugust.args = {
-  bookKey: "/works/OL59419W",
-};
-
-export const SugarAndSpice = Template.bind({});
-SugarAndSpice.args = {
-  bookKey: "/works/OL20631421W",
+export const PrideAndPrejudice: Story = {
+  render: () => <BookPageWrapper bookKey="OL1394864W" />,
 };
