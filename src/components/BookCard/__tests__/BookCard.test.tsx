@@ -1,15 +1,18 @@
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import { BookCard } from "../BookCard";
 import { MemoryRouter } from "react-router-dom";
 import { useOpenLibraryService } from "../../../hooks/useOpenLibraryService";
+
+jest.mock("../../images/default.jpg", () => "default-image-path.jpg", {
+  virtual: true,
+});
 
 jest.mock("@chakra-ui/react", () => {
   const actual = jest.requireActual("@chakra-ui/react");
   return {
     __esModule: true,
     ...actual,
-    Image: (props: any) => <img {...props} />,
+    Image: (props: any) => <img {...props} data-testid="book-image" />,
   };
 });
 
@@ -35,46 +38,63 @@ describe("BookCard", () => {
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,
     });
+    jest.clearAllMocks();
   });
 
-  it("calls getBookDetails with proper book key", () => {
+  it("calls getBookDetails with proper book key", async () => {
     const getBookDetailsMock = jest.fn();
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,
       getBookDetails: getBookDetailsMock,
     });
     const bookId = "/works/OL12345W";
-    renderComponent(bookId);
+
+    await act(async () => {
+      renderComponent(bookId);
+    });
+
     expect(getBookDetailsMock).toHaveBeenCalledWith("OL12345W");
   });
 
-  it("renders loading state", () => {
+  it("renders loading state", async () => {
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,
       isLoading: true,
       getBookDetails: jest.fn(),
     });
-    renderComponent("/works/OL12345W");
+
+    await act(async () => {
+      renderComponent("/works/OL12345W");
+    });
+
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it("renders error state", () => {
+  it("renders error state", async () => {
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,
       error: "Failed to load book details",
       getBookDetails: jest.fn(),
     });
-    renderComponent("/works/OL12345W");
+
+    await act(async () => {
+      renderComponent("/works/OL12345W");
+    });
+
     expect(screen.getByText("Failed to load book details")).toBeInTheDocument();
   });
 
-  it("renders no book details available state", () => {
+  it("renders no book details available state", async () => {
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,
       book: null,
       getBookDetails: jest.fn(),
     });
-    renderComponent("/works/OL12345W");
+
+    await act(async () => {
+      renderComponent("/works/OL12345W");
+    });
+
     expect(screen.getByText("No book details available.")).toBeInTheDocument();
   });
 
@@ -89,19 +109,29 @@ describe("BookCard", () => {
       },
       covers: [12345],
     };
+
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,
       book: mockBook,
       getBookDetails: jest.fn(),
     });
-    renderComponent("/works/OL12345W");
+
+    await act(async () => {
+      renderComponent("/works/OL12345W");
+    });
+
+    // Use waitFor for async operations
     await waitFor(() => {
-      expect(screen.getByRole("img")).toHaveAttribute(
+      expect(screen.getByTestId("book-image")).toHaveAttribute(
         "src",
         "https://covers.openlibrary.org/b/id/12345-M.jpg"
       );
     });
-    expect(screen.getByRole("img")).toHaveAttribute("alt", "The Great Gatsby");
+
+    expect(screen.getByTestId("book-image")).toHaveAttribute(
+      "alt",
+      "The Great Gatsby"
+    );
     expect(
       screen.getByRole("heading", { name: "The Great Gatsby" })
     ).toBeInTheDocument();

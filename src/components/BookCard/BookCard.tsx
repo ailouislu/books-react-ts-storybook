@@ -35,7 +35,10 @@ export const BookCard: React.FC<BookCardProps> = ({ bookId }) => {
         }
       }
     };
-    loadImage();
+
+    if (book) {
+      loadImage();
+    }
   }, [book]);
 
   if (isLoading) {
@@ -76,8 +79,8 @@ export const BookCard: React.FC<BookCardProps> = ({ bookId }) => {
               alt={book.title}
               mb={3}
               height="400px"
-              objectFit="contain"
               width="100%"
+              sx={{ objectFit: "contain" }}
             />
             <Box
               className="description-overlay"
@@ -100,7 +103,7 @@ export const BookCard: React.FC<BookCardProps> = ({ bookId }) => {
             >
               {typeof book.description === "string"
                 ? book.description.slice(0, 200)
-                : book.description?.value.slice(0, 200)}
+                : book.description?.value?.slice(0, 200)}
               ...
             </Box>
           </Box>
