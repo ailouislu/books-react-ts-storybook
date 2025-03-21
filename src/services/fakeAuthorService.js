@@ -1,5 +1,3 @@
-
-
 const authors = [
     {
       id: "1",

@@ -1,6 +1,6 @@
-import create from 'zustand';
-import { Genre } from '../components/Books.type';
-import { getGenres } from '../services/fakeGenreService';
+import { create } from "zustand";
+import { Genre } from "../components/Books.type";
+import { genreNames } from "../services/genreService";
 
 interface GenresStore {
   genres: Genre[];
@@ -11,18 +11,9 @@ interface GenresStore {
 }
 
 export const useGenresStore = create<GenresStore>((set, get) => ({
-  genres: [],
+  genres: genreNames,
   isLoading: false,
   error: null,
-  hasLoaded: false,
-  fetchGenres: async () => {
-    if (get().hasLoaded) return;
-    set({ isLoading: true });
-    try {
-      const genres = await getGenres();
-      set({ genres, isLoading: false, hasLoaded: true });
-    } catch (error) {
-      set({ error: error as Error, isLoading: false });
-    }
-  },
+  hasLoaded: true,
+  fetchGenres: async () => {},
 }));

@@ -2,7 +2,7 @@ import React from "react";
 import { Meta, StoryObj } from "@storybook/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { BookPage } from "../components/BookDetails/BookPage";
+import { BookPage } from "./BookPage";
 
 const meta: Meta<typeof BookPage> = {
   title: "Components/BookPage",

@@ -34,11 +34,6 @@ export interface OpenLibraryBookDetails {
   number_of_pages?: number;
 }
 
-export interface OpenLibraryAuthor {
-  key: string;
-  name: string;
-}
-
 export interface Book {
   id: string;
   title: string;
@@ -56,6 +51,11 @@ export interface Book {
   bestSeller: boolean;
   isbn: string;
   publisher: string;
+}
+
+export interface Author {
+  key: string;
+  name: string;
 }
 
 export interface Genre {

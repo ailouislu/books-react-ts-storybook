@@ -1,13 +1,13 @@
-import { useState, useCallback } from "react";
-import axios from "axios";
+import axios from 'axios';
+import { useState, useCallback } from 'react';
 import {
   OpenLibrarySearchResponse,
   OpenLibraryBook,
   OpenLibraryBookDetails,
-  OpenLibraryAuthor,
-} from "../components/Books.type";
+  Author,
+} from '../components/Books.type';
 
-const BASE_URL = "https://openlibrary.org";
+const BASE_URL = 'https://openlibrary.org';
 
 export const useOpenLibraryService = () => {
   const [books, setBooks] = useState<OpenLibraryBook[]>([]);
@@ -28,8 +28,8 @@ export const useOpenLibraryService = () => {
       );
       setBooks(response.data.docs);
     } catch (err) {
-      setError("Failed to fetch books. Please try again.");
-      console.error("Error fetching books:", err);
+      setError('Failed to fetch books. Please try again.');
+      console.error('Error fetching books:', err);
     } finally {
       setIsLoading(false);
     }
@@ -37,20 +37,18 @@ export const useOpenLibraryService = () => {
 
   const getAuthorName = async (authorKey: string): Promise<string> => {
     try {
-      const response = await axios.get<OpenLibraryAuthor>(
-        `${BASE_URL}${authorKey}.json`
-      );
+      const response = await axios.get<Author>(`${BASE_URL}${authorKey}.json`);
       return response.data.name;
     } catch (err) {
-      console.error("Error fetching author details:", err);
-      return "Unknown Author";
+      console.error('Error fetching author details:', err);
+      return 'Unknown Author';
     }
   };
 
   const getBookDetails = useCallback(async (bookKey: string) => {
     setIsLoading(true);
     setError(null);
-    setBook(null);  // Reset book state before fetching new details
+    setBook(null);
 
     try {
       const response = await axios.get<OpenLibraryBookDetails>(
@@ -64,7 +62,7 @@ export const useOpenLibraryService = () => {
         );
         const authorNames = await Promise.all(authorPromises);
         bookData.authors = authorNames.map((name) => ({
-          author: { key: "", name },
+          author: { key: '', name },
         }));
       }
 
@@ -72,10 +70,11 @@ export const useOpenLibraryService = () => {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(`Failed to fetch book details: ${err.message}`);
+        console.error('Error details:', err.response?.data);
       } else {
-        setError("An unknown error occurred while fetching book details.");
+        setError('An unknown error occurred while fetching book details.');
+        console.error('Unexpected error:', err);
       }
-      console.error("Error fetching book details:", err);
     } finally {
       setIsLoading(false);
     }

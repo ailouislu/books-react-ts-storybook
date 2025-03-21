@@ -13,7 +13,7 @@ const GenreList: React.FC<GenreListProps> = ({
   selectedGenre,
   onGenreSelect,
 }) => {
-  const allGenres = [{ id: "", name: "All Genres" }, ...genres];
+  const allGenres = [...genres];
 
   return (
     <List spacing={3}>

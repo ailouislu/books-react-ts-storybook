@@ -1,13 +1,28 @@
-import { useQuery } from 'react-query';
+import { useState, useEffect } from 'react';
 import { Book } from '../components/Books.type';
-import { getBooks } from '../services/fakeBookService';
+import { getBooksByGenre } from '../services/genreService';
 
-export const useBooksData = () => {
-  const { data: books = [] } = useQuery('books', getBooks);
+export const useBooksData = (genre: string) => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const getBookById = (bookId: string): Book | undefined => {
-    return books.find((book) => book.id === bookId);
-  };
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const books = await getBooksByGenre(genre);
+        setBooks(books);
+      } catch (err) {
+        setError('Failed to fetch books. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  return { books, getBookById };
+    fetchBooks();
+  }, [genre]);
+
+  return { books, isLoading, error };
 };

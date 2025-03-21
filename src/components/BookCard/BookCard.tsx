@@ -1,28 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { Box, Divider, Heading, Image, Text, Badge } from "@chakra-ui/react";
+import { Box, Divider, Heading, Image, Text } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { Book } from "./Books.type";
+import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
 
 interface BookCardProps {
-  book: Book;
+  bookId: string;
 }
 
-const BookCard: React.FC<BookCardProps> = ({ book }) => {
+export const BookCard: React.FC<BookCardProps> = ({ bookId }) => {
+  const { book, isLoading, error, getBookDetails } = useOpenLibraryService();
   const [imageSrc, setImageSrc] = useState<string>("");
 
   useEffect(() => {
-    const loadImage = async (isbn: string) => {
-      try {
-        const image = isbn
-          ? (await import(`../images/${isbn}.jpg`)).default
-          : (await import(`../images/default.jpg`)).default;
-        setImageSrc(image);
-      } catch {
-        setImageSrc((await import(`../images/default.jpg`)).default);
+    if (bookId) {
+      const bookKey = bookId.replace("/works/", "");
+      getBookDetails(bookKey);
+    }
+  }, [bookId, getBookDetails]);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      if (book?.covers && book.covers.length > 0) {
+        setImageSrc(
+          `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
+        );
+      } else {
+        try {
+          const defaultImage = (await import(`../../images/default.jpg`))
+            .default;
+          setImageSrc(defaultImage);
+        } catch {
+          console.error("Failed to load default image");
+          setImageSrc("");
+        }
       }
     };
-    loadImage(book.isbn);
-  }, [book.isbn]);
+    loadImage();
+  }, [book]);
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text color="red.500">{error}</Text>;
+  }
+
+  if (!book) {
+    return <Text>No book details available.</Text>;
+  }
 
   return (
     <Box
@@ -31,27 +57,12 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       overflow="hidden"
       p={4}
       as={Link}
-      to={`/books/${book.id}`}
+      to={`/books/${bookId}`}
       display="flex"
       flexDirection="column"
       height="100%"
       position="relative"
     >
-      {book.bestSeller && (
-        <Badge
-          position="absolute"
-          top="0"
-          right="0"
-          bg="red.500"
-          color="white"
-          borderRadius="full"
-          px={2}
-          py={1}
-          zIndex="2"
-        >
-          Best Seller
-        </Badge>
-      )}
       <Box
         flex="1"
         display="flex"
@@ -87,24 +98,24 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
               textAlign="center"
               zIndex="1"
             >
-              {book.description.slice(0, 200)}...
+              {typeof book.description === "string"
+                ? book.description.slice(0, 200)
+                : book.description?.value.slice(0, 200)}
+              ...
             </Box>
           </Box>
           <Heading size="md" mb={2}>
             {book.title}
           </Heading>
-          <Text mb={2}>{book.subtitle}</Text>
         </Box>
         <Box mt={2}>
           <Divider my={2} />
-          <Text>Author: {book.author}</Text>
-          <Text color="red.500" fontSize="lg" fontWeight="bold">
-            Price: ${book.price}
+          <Text>
+            Author:{" "}
+            {book.authors.map((author) => author.author.name).join(", ")}
           </Text>
         </Box>
       </Box>
     </Box>
   );
 };
-
-export default BookCard;
