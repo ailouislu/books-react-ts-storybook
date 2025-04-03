@@ -20,26 +20,18 @@ import SearchBar from "../SearchBar";
 import { Book, Genre } from "../Books.type";
 
 interface BooksProps {
-  books: Book[];
-  isLoading: boolean;
-  error: string | null;
-  searchBooks: (query: string) => void;
-  handleGenreSelect: (genre: Genre) => void;
-  handleSearch: (query: string) => void;
-  handleBookClick: (bookId: string) => void;
-  selectedGenre: Genre;
-  searchQuery: string;
+  books?: Book[];
+  isLoading?: boolean;
+  error?: string | null;
+  searchBooks?: (query: string) => void;
+  handleGenreSelect?: (genre: Genre) => void;
+  handleSearch?: (query: string) => void;
+  handleBookClick?: (bookId: string) => void;
+  selectedGenre?: Genre;
+  searchQuery?: string;
 }
 
-const Books: React.FC<BooksProps> = ({
-  books,
-  isLoading,
-  error,
-  searchBooks,
-  handleBookClick,
-  selectedGenre,
-  searchQuery,
-}) => {
+const Books: React.FC<BooksProps> = () => {
   const [localSearchQuery, setLocalSearchQuery] = useState<string>("");
   const [localSelectedGenre, setLocalSelectedGenre] = useState<Genre>({
     id: "popular",
