@@ -12,6 +12,7 @@ const BASE_URL = 'https://openlibrary.org';
 export const useOpenLibraryService = () => {
   const [books, setBooks] = useState<OpenLibraryBook[]>([]);
   const [book, setBook] = useState<OpenLibraryBookDetails | null>(null);
+  const [author, setAuthor] = useState<Author | null>(null)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,5 +81,21 @@ export const useOpenLibraryService = () => {
     }
   }, []);
 
-  return { books, book, isLoading, error, searchBooks, getBookDetails };
-};
+  const getAuthorDetails = useCallback(async (authorId: string) => {
+    setIsLoading(true);
+    setError(null);
+    setAuthor(null);
+   
+    try {
+    const response = await axios.get<Author>(`${BASE_URL}/authors/${authorId}.json`);
+    setAuthor(response.data);
+    } catch (err) {
+    setError('Failed to fetch author details. Please try again.');
+    console.error('Error fetching author details:', err);
+    } finally {
+    setIsLoading(false);
+    }
+    }, []);
+   
+    return { books, book, author, isLoading, error, searchBooks, getBookDetails, getAuthorDetails };
+   };
