@@ -3,13 +3,13 @@ import Books from "../Books";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MemoryRouter } from "react-router-dom";
 import { useBooksData } from "../../../hooks/useBooksData";
-import { useGenresStore } from "../../../hooks/useGenresData";
+import { useGenresStore } from "../../../hooks/UseGenresData";
 import axios from "axios";
 import { Book } from "../../Books.type";
 
 jest.mock("axios");
 jest.mock("../../../hooks/useBooksData");
-jest.mock("../../../hooks/useGenresData");
+jest.mock("../../../hooks/UseGenresData");
 
 (axios as any).isAxiosError = jest.fn((err) => err instanceof Error);
 

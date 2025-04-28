@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
-import axios from "axios";
+import axios, { AxiosError } from 'axios';
 
 jest.mock("axios");
 
@@ -15,7 +15,7 @@ beforeAll(() => {
       removeListener: jest.fn(),
     }));
 
-  (axios as any).isAxiosError = (error: any): error is axios.AxiosError => {
+  (axios as any).isAxiosError = (error: any): error is AxiosError => {
     return error.isAxiosError === true;
   };
 });
