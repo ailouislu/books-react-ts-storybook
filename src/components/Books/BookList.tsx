@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Grid } from "@chakra-ui/react";
-import BookCard from "./BookCard";
-import { Book } from "./Books.type";
+import { Book } from "../Books.type";
+import { BookCard } from "../BookCard";
 
 interface BookListProps {
   books: Book[];
@@ -13,7 +13,7 @@ const BookList: React.FC<BookListProps> = ({ books, onBookClick }) => {
     <Grid templateColumns="repeat(auto-fill, minmax(250px, 1fr))" gap={6}>
       {books.map((book) => (
         <Box key={book.id} onClick={() => onBookClick(book.id)}>
-          <BookCard book={book} />
+          <BookCard bookId={book.id} />
         </Box>
       ))}
     </Grid>

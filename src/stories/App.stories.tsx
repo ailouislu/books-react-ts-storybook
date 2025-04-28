@@ -2,24 +2,22 @@ import { Meta, StoryFn } from "@storybook/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import App from "../App";
-import Books from "../components/Books";
-import BookDetails from "../components/BookDetails";
+import Books from "../components/Books/Books";
+import { BookPage } from "../components/BookDetails";
 
 const queryClient = new QueryClient();
 
 export default {
-  title: "Components/App",
-  component: App,
+  title: "Project/FullApp",
+  component: Books,
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={["/books"]}>
         <QueryClientProvider client={queryClient}>
           <ChakraProvider>
             <Routes>
-              <Route path="/" element={<Story />} />
-              <Route path="/books" element={<Books />} />
-              <Route path="/books/:bookId" element={<BookDetails />} />
+              <Route path="/books" element={<Story />} />
+              <Route path="/books/:bookKey" element={<BookPage />} />
             </Routes>
           </ChakraProvider>
         </QueryClientProvider>
@@ -28,7 +26,7 @@ export default {
   ],
 } as Meta;
 
-const Template: StoryFn = (args) => <App {...args} />;
+const Template: StoryFn = () => <Books />;
 
 export const Default = Template.bind({});
 Default.args = {};

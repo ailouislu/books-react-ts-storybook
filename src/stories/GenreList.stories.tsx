@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { StoryFn, Meta } from "@storybook/react";
 import { Box, ChakraProvider } from "@chakra-ui/react";
 import GenreList from "../components/GenreList";
-import { useGenresStore } from "../hooks/UseGenresData";
+import { useGenresStore } from "../hooks/useGenresData";
 import { Genre } from "../components/Books.type";
 
 export default {
@@ -23,7 +23,7 @@ const GenreListWithData: React.FC = () => {
 
   useEffect(() => {
     if (genres.length > 0) {
-      setSelectedGenre({ id: "", name: "All Genres" });
+      setSelectedGenre({ id: "popular", name: "Popular" });
     }
   }, [genres]);
 
