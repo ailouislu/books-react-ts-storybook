@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -12,9 +12,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ChakraProvider>
-    <BrowserRouter>
+      <BrowserRouter>
         <App />
-    </BrowserRouter>
+      </BrowserRouter>
     </ChakraProvider>
   </React.StrictMode>
 );
