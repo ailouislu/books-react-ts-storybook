@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useBooksData } from "../../hooks/useBooksData";
-import { useGenresStore } from "../../hooks/UseGenresData";
+import { useGenresStore } from "../../hooks/useGenresData";
 import BookList from "./BookList";
 import GenreList from "../GenreList";
 import SearchBar from "../SearchBar";
