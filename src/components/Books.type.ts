@@ -56,6 +56,9 @@ export interface Book {
 export interface Author {
   key: string;
   name: string;
+  photos:string[];
+  birth_date: string;
+  bio: string | { value: string };
 }
 
 export interface Genre {
