@@ -11,7 +11,8 @@ export const BookPage: React.FC = () => {
 
   useEffect(() => {
     if (bookKey) {
-      getBookDetails(bookKey);
+      const cleanBookKey = bookKey.replace("/works/", "");
+      getBookDetails(cleanBookKey);
     }
   }, [bookKey, getBookDetails]);
 
@@ -32,7 +33,10 @@ export const BookPage: React.FC = () => {
         }
       }
     };
-    loadImage();
+
+    if (book) {
+      loadImage();
+    }
   }, [book]);
 
   if (!bookKey) {

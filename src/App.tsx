@@ -8,7 +8,7 @@ function App() {
     <ChakraProvider>
       <Routes>
         <Route path="/" element={<Books />} />
-        <Route path="/book/:bookKey" element={<BookPage />} />
+        <Route path="/books/:bookKey" element={<BookPage />} />
       </Routes>
     </ChakraProvider>
   );

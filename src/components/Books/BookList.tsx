@@ -12,7 +12,10 @@ const BookList: React.FC<BookListProps> = ({ books, onBookClick }) => {
   return (
     <Grid templateColumns="repeat(auto-fill, minmax(250px, 1fr))" gap={6}>
       {books.map((book) => (
-        <Box key={book.id} onClick={() => onBookClick(book.id)}>
+        <Box
+          key={book.id}
+          onClick={() => onBookClick(book.id.replace("/works/", ""))}
+        >
           <BookCard bookId={book.id} />
         </Box>
       ))}

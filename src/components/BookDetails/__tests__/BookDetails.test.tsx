@@ -1,16 +1,35 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { BookDetails } from "../BookDetails";
 import { OpenLibraryBookDetails } from "../../Books.type";
+import { BrowserRouter } from "react-router-dom";
+
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock("@chakra-ui/react", () => {
   const originalModule = jest.requireActual("@chakra-ui/react");
   return {
     __esModule: true,
     ...originalModule,
-    Spinner: jest.fn(() => <div data-testid="spinner" />),
-    Image: jest.fn((props) => null),
+    Spinner: () => <div data-testid="spinner">Loading...</div>,
+    Image: ({ src, alt, onLoad, ...props }) => (
+      <img
+        src={src}
+        alt={alt}
+        data-testid="book-image"
+        onClick={() => onLoad && onLoad()}
+        {...props}
+      />
+    ),
   };
 });
+
+jest.mock("@chakra-ui/icons", () => ({
+  ChevronLeftIcon: () => <span data-testid="chevron-left-icon" />,
+}));
 
 const mockBook: OpenLibraryBookDetails = {
   title: "The Great Gatsby",
@@ -20,10 +39,26 @@ const mockBook: OpenLibraryBookDetails = {
   description: { value: "A novel about the American Dream in the Jazz Age." },
 };
 
+const renderWithRouter = (component: React.ReactNode) => {
+  return render(<BrowserRouter>{component}</BrowserRouter>);
+};
+
 describe("BookDetails", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("renders loading state", () => {
+    const { container } = renderWithRouter(
+      <BookDetails book={mockBook} imageSrc="" isLoading={true} error={null} />
+    );
+
+    expect(container.textContent).toContain("Loading...");
+  });
+
   it("renders error state", () => {
     const errorMessage = "Failed to load book details";
-    render(
+    renderWithRouter(
       <BookDetails
         book={mockBook}
         imageSrc=""
@@ -34,8 +69,8 @@ describe("BookDetails", () => {
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
-  it("renders book details correctly", async () => {
-    render(
+  it("renders book details correctly", () => {
+    renderWithRouter(
       <BookDetails
         book={mockBook}
         imageSrc="book-cover.jpg"
@@ -45,7 +80,7 @@ describe("BookDetails", () => {
     );
 
     expect(screen.getByText("The Great Gatsby")).toBeInTheDocument();
-    expect(screen.getByText("F. Scott Fitzgerald")).toBeInTheDocument();
+    expect(screen.getByText(/F. Scott Fitzgerald/)).toBeInTheDocument();
     expect(screen.getByText("First published: 1925")).toBeInTheDocument();
     expect(screen.getByText("CLASSIC LITERATURE")).toBeInTheDocument();
     expect(screen.getByText("AMERICAN NOVEL")).toBeInTheDocument();
@@ -57,7 +92,7 @@ describe("BookDetails", () => {
 
   it("handles book with no authors", () => {
     const bookWithNoAuthors = { ...mockBook, authors: [] };
-    render(
+    renderWithRouter(
       <BookDetails
         book={bookWithNoAuthors}
         imageSrc=""
@@ -65,9 +100,8 @@ describe("BookDetails", () => {
         error={null}
       />
     );
-    expect(
-      screen.queryByText(/by F. Scott Fitzgerald/)
-    ).not.toBeInTheDocument();
+    expect(screen.getByText("by")).toBeInTheDocument();
+    expect(screen.queryByText(/F. Scott Fitzgerald/)).not.toBeInTheDocument();
   });
 
   it("handles book with multiple authors", () => {
@@ -78,7 +112,7 @@ describe("BookDetails", () => {
         { author: { key: "OL67890B", name: "Author Two" } },
       ],
     };
-    render(
+    renderWithRouter(
       <BookDetails
         book={bookWithMultipleAuthors}
         imageSrc=""
@@ -94,7 +128,7 @@ describe("BookDetails", () => {
       ...mockBook,
       description: "This is a string description.",
     };
-    render(
+    renderWithRouter(
       <BookDetails
         book={bookWithStringDescription}
         imageSrc=""
@@ -107,9 +141,25 @@ describe("BookDetails", () => {
     ).toBeInTheDocument();
   });
 
+  it("handles book with no description", () => {
+    const bookWithNoDescription = {
+      ...mockBook,
+      description: undefined,
+    };
+    renderWithRouter(
+      <BookDetails
+        book={bookWithNoDescription}
+        imageSrc=""
+        isLoading={false}
+        error={null}
+      />
+    );
+    expect(screen.queryByText(/A novel about/)).not.toBeInTheDocument();
+  });
+
   it("handles book with no subjects", () => {
     const bookWithNoSubjects = { ...mockBook, subjects: undefined };
-    render(
+    renderWithRouter(
       <BookDetails
         book={bookWithNoSubjects}
         imageSrc=""
@@ -125,7 +175,7 @@ describe("BookDetails", () => {
       ...mockBook,
       first_publish_date: undefined,
     };
-    render(
+    renderWithRouter(
       <BookDetails
         book={bookWithNoPublishDate}
         imageSrc=""
@@ -134,5 +184,21 @@ describe("BookDetails", () => {
       />
     );
     expect(screen.queryByText(/First published:/)).not.toBeInTheDocument();
+  });
+
+  it("navigates back when back button is clicked", () => {
+    renderWithRouter(
+      <BookDetails
+        book={mockBook}
+        imageSrc="book-cover.jpg"
+        isLoading={false}
+        error={null}
+      />
+    );
+
+    const backButton = screen.getByText("Back to Books");
+    fireEvent.click(backButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith("/");
   });
 });

@@ -52,8 +52,10 @@ export const useOpenLibraryService = () => {
     setBook(null);
 
     try {
+      const cleanBookKey = bookKey.replace('/works/', '');
+      
       const response = await axios.get<OpenLibraryBookDetails>(
-        `${BASE_URL}/works/${bookKey}.json`
+        `${BASE_URL}/works/${cleanBookKey}.json`
       );
       const bookData = response.data;
 
@@ -87,15 +89,15 @@ export const useOpenLibraryService = () => {
     setAuthor(null);
    
     try {
-    const response = await axios.get<Author>(`${BASE_URL}/authors/${authorId}.json`);
-    setAuthor(response.data);
+      const response = await axios.get<Author>(`${BASE_URL}/authors/${authorId}.json`);
+      setAuthor(response.data);
     } catch (err) {
-    setError('Failed to fetch author details. Please try again.');
-    console.error('Error fetching author details:', err);
+      setError('Failed to fetch author details. Please try again.');
+      console.error('Error fetching author details:', err);
     } finally {
-    setIsLoading(false);
+      setIsLoading(false);
     }
-    }, []);
+  }, []);
    
-    return { books, book, author, isLoading, error, searchBooks, getBookDetails, getAuthorDetails };
-   };
+  return { books, book, author, isLoading, error, searchBooks, getBookDetails, getAuthorDetails };
+};
