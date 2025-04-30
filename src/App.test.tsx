@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError } from "axios";
 
 jest.mock("axios");
 
@@ -26,18 +26,18 @@ describe("App", () => {
   });
 
   test("renders Books component at '/' route", async () => {
-    (axios.get as jest.Mock).mockResolvedValueOnce({
+    (axios.get as jest.Mock).mockResolvedValue({
       data: {
         works: [
           {
             key: "/works/OL1W",
             title: "Test Book 1",
-            author_name: ["Author 1"],
+            authors: [{ author: { name: "Author 1" } }],
           },
           {
             key: "/works/OL2W",
             title: "Test Book 2",
-            author_name: ["Author 2"],
+            authors: [{ author: { name: "Author 2" } }],
           },
         ],
       },
@@ -51,6 +51,6 @@ describe("App", () => {
       </ChakraProvider>
     );
 
-    expect(await screen.findByText("Books")).toBeInTheDocument();
+    expect(await screen.findByText("Author 1")).toBeInTheDocument();
   });
 });

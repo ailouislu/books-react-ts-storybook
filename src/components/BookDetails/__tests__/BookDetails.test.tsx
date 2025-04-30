@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BookDetails } from "../BookDetails";
+
 import { OpenLibraryBookDetails } from "../../Books.type";
 import { BrowserRouter } from "react-router-dom";
 
@@ -9,28 +10,88 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const chakraUIProps = [
+  "as",
+  "apply",
+  "sx",
+  "__css",
+  "css",
+  "styleConfig",
+  "layerStyle",
+  "textStyle",
+  "colorScheme",
+  "size",
+  "variant",
+  "orientation",
+  "isTruncated",
+  "isInvalid",
+  "isDisabled",
+  "isLoading",
+  "isRequired",
+  "isChecked",
+  "isFullWidth",
+  "isFullHeight",
+  "isOpen",
+  "isCloseButton",
+  "isRound",
+  "objectFit",
+  "templateColumns",
+  "leftIcon",
+  "borderRadius",
+  "boxShadow",
+  "justifyContent",
+  "borderWidth",
+];
+
+const filterChakraProps = (props: any) =>
+  Object.fromEntries(
+    Object.entries(props).filter(([key]) => !chakraUIProps.includes(key))
+  );
+
 jest.mock("@chakra-ui/react", () => {
   const originalModule = jest.requireActual("@chakra-ui/react");
   return {
     __esModule: true,
     ...originalModule,
-    Spinner: () => <div data-testid="spinner">Loading...</div>,
+    Spinner: (props: any) => <div data-testid="spinner" {...filterChakraProps(props)}>Loading...</div>,
     Image: ({ src, alt, onLoad, ...props }) => (
-      <img
-        src={src}
-        alt={alt}
-        data-testid="book-image"
-        onClick={() => onLoad && onLoad()}
-        {...props}
-      />
+      <img src={src} alt={alt} data-testid="book-image" onClick={() => onLoad && onLoad()} {...filterChakraProps(props)} style={{ width: "100%", height: "100%" }}/>
     ),
+    Box: ({ children, ...props }) => (
+      <div {...filterChakraProps(props)}>{children}</div>
+    ),
+    VStack: ({ children, ...props }) => (
+      <div data-testid="vstack" {...filterChakraProps(props)}>{children}</div>
+    ),
+    HStack: ({ children, ...props }) => (
+      <div data-testid="hstack" {...filterChakraProps(props)}>{children}</div>
+    ),
+    Badge: ({ children, ...props }) => (
+      <span data-testid="badge" {...filterChakraProps(props)}>{children}</span>
+    ),
+    Heading: ({ children, ...props }) => (
+      <h2 data-testid="heading" {...filterChakraProps(props)}>{children}</h2>
+    ),
+    Button: ({ children, ...props }) => (
+      <button data-testid="button" {...filterChakraProps(props)}>{children}</button>
+    ),
+    Flex: ({ children, ...props }) => (
+      <div data-testid="flex" {...filterChakraProps(props)}>{children}</div>
+    ),
+    Grid: ({ children, ...props }) => (
+      <div data-testid="grid" {...filterChakraProps(props)}>{children}</div>
+    ),
+     GridItem: ({ children, ...props }) => (
+      <div {...filterChakraProps(props)}>{children}</div>
+    ),
+    useBreakpointValue: (options: any) => options.base,
   };
-});
+});;
+
 
 jest.mock("@chakra-ui/icons", () => ({
   ChevronLeftIcon: () => <span data-testid="chevron-left-icon" />,
 }));
-
 const mockBook: OpenLibraryBookDetails = {
   title: "The Great Gatsby",
   authors: [{ author: { key: "OL12345A", name: "F. Scott Fitzgerald" } }],
@@ -44,7 +105,7 @@ const renderWithRouter = (component: React.ReactNode) => {
 };
 
 describe("BookDetails", () => {
-  beforeEach(() => {
+  beforeEach(() => { 
     jest.clearAllMocks();
   });
 
@@ -199,6 +260,6 @@ describe("BookDetails", () => {
     const backButton = screen.getByText("Back to Books");
     fireEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/");
+    expect(mockNavigate).toHaveBeenCalledWith("/books");
   });
 });

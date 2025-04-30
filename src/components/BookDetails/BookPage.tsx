@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Spinner, Text, Box } from "@chakra-ui/react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Spinner, Text, Box, Container, Button, Flex } from "@chakra-ui/react"; // Import Container
+import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { BookDetails } from "./BookDetails";
 import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
 
@@ -8,6 +9,7 @@ export const BookPage: React.FC = () => {
   const { bookKey } = useParams<{ bookKey: string }>();
   const { book, isLoading, error, getBookDetails } = useOpenLibraryService();
   const [imageSrc, setImageSrc] = useState<string>("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (bookKey) {
@@ -40,32 +42,64 @@ export const BookPage: React.FC = () => {
   }, [book]);
 
   if (!bookKey) {
-    return <Text>No book key provided</Text>;
+    return (
+      <Container maxW="container.xl" py={8}>
+        <Text>No book key provided</Text>
+        <Flex justifyContent="center" mt={8}>
+          <Button leftIcon={<ChevronLeftIcon />} onClick={() => navigate("/books")} colorScheme="blue" size="lg">
+            Back to Books
+          </Button>
+        </Flex>
+      </Container>);
   }
 
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <Container maxW="container.xl" py={8}>
+        <Spinner />
+      </Container>
+    );
   }
 
   if (error) {
     return (
-      <Box>
-        <Text color="red.500">{error}</Text>
-        <Text>Book Key: {bookKey}</Text>
-      </Box>
+       <Container maxW="container.xl" py={8}>
+        <Box>
+          <Text color="red.500" fontSize="xl">{error}</Text>
+          <Text>Book Key: {bookKey}</Text>         
+        </Box>
+        <Flex justifyContent="center" mt={8}>
+          <Button leftIcon={<ChevronLeftIcon />} onClick={() => navigate("/books")} colorScheme="blue" size="lg">
+            Back to Books
+          </Button>
+        </Flex>
+       </Container>
     );
   }
 
   if (!book) {
-    return <Text>No book details available.</Text>;
+    return (
+      <Container maxW="container.xl" py={8}>
+        <Box>
+          <Text>No book details available.</Text>
+        </Box>
+        <Flex justifyContent="center" mt={8}>
+          <Button leftIcon={<ChevronLeftIcon />} onClick={() => navigate("/books")} colorScheme="blue" size="lg">
+            Back to Books
+          </Button>
+        </Flex>
+      </Container>
+    );
   }
 
   return (
-    <BookDetails
-      book={book}
-      imageSrc={imageSrc}
-      isLoading={isLoading}
-      error={error}
-    />
+    <Container maxW="container.xl" py={8}>
+      <BookDetails
+        book={book}
+        imageSrc={imageSrc}
+        isLoading={isLoading}
+        error={error}
+      />
+    </Container>
   );
 };

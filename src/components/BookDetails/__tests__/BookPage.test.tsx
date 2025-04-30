@@ -11,6 +11,17 @@ jest.mock("@chakra-ui/react", () => {
     ...actual,
     Spinner: () => <div data-testid="spinner" />,
     Image: () => null,
+    useBreakpointValue: (values: any) => {
+      // Mocking useBreakpointValue to return a fixed value
+      if (typeof values === 'object' && values.md) {
+        return values.md;
+      }
+      if (Array.isArray(values) && values[1]) {
+        return values[1]
+      }
+
+      return values;
+    },
   };
 });
 

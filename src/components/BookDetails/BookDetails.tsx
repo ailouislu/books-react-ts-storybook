@@ -11,6 +11,9 @@ import {
   Center,
   Button,
   Flex,
+  Grid,
+  GridItem,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -33,29 +36,83 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate("/");
+    navigate("/books");
   };
 
+  const gridTemplateColumns = useBreakpointValue({
+    base: "1fr",
+    md: "3fr 7fr",
+  });
+
+  const imageContainerWidth = useBreakpointValue({
+    base: "80%",
+    sm: "60%",
+    md: "300px",
+  });
+
+  const imageContainerHeight = useBreakpointValue({
+    base: "auto",
+    md: "450px",
+  });
+
+  const vstackSpacing = useBreakpointValue({
+    base: 3,
+    md: 4,
+  });
+
+  const titleFontSize = useBreakpointValue({
+    base: "xl",
+    md: "xl",
+  });
+
+  const textFontSize = useBreakpointValue({
+    base: "sm",
+    md: "md",
+  });
+
+  const descriptionFontSize = useBreakpointValue({
+    base: "sm",
+    md: "md",
+  });
+
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <Center minH="calc(100vh - 120px)">
+        <Spinner size="xl" />
+      </Center>
+    );
   }
 
   if (error) {
-    return <Text color="red.500">{error}</Text>;
+    return (
+      <Center minH="calc(100vh - 120px)">
+        <Text color="red.500" fontSize="xl">
+          {error}
+        </Text>
+      </Center>
+    );
   }
 
   const getAuthors = () => {
     if (book.authors && book.authors.length > 0) {
-      return book.authors.map((author) => author.author.name).join("、");
+      const authorNames = book.authors
+        .map((author) => author.author?.name)
+        .filter(Boolean);
+      return authorNames.join("、");
     }
     return "";
   };
 
   return (
-    <VStack spacing={6} align="stretch">
-      <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
-        <HStack spacing={4} align="start">
-          <Box width="150px" height="200px" position="relative">
+    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
+      <Grid templateColumns={gridTemplateColumns} gap={6}>
+        <GridItem>
+          <Box
+            position="relative"
+            width={imageContainerWidth}
+            height={imageContainerHeight}
+            mx="auto"
+          >
             {!imageLoaded && (
               <Center
                 position="absolute"
@@ -70,59 +127,73 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
             <Image
               src={imageSrc}
               alt={`Cover of ${book.title}`}
-              maxW="150px"
-              objectFit="cover"
+              width="100%"
+              height="100%"
+              objectFit="contain"
               onLoad={() => setImageLoaded(true)}
               opacity={imageLoaded ? 1 : 0}
               transition="opacity 0.3s"
             />
           </Box>
-          <VStack align="start" spacing={2}>
-            <Heading as="h2" size="lg">
+        </GridItem>
+        <GridItem>
+          <VStack align="start" spacing={vstackSpacing}>
+            {" "}
+            <Heading as="h2" size={titleFontSize}>
+              {" "}
               {book.title}
             </Heading>
-            <Text fontSize="md">
+            <Text fontSize={textFontSize}>
+              {" "}
               by
               {getAuthors() && (
-                <Text as="span" fontWeight="bold" ml={1}>
+                <Text as="span" fontWeight="bold" ml={2}>
                   {getAuthors()}
                 </Text>
               )}
             </Text>
             {book.first_publish_date && (
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize={textFontSize} color="gray.600">
+                {" "}
                 First published: {book.first_publish_date}
               </Text>
             )}
-            {book.subjects && (
-              <HStack>
-                {book.subjects.slice(0, 3).map((subject, index) => (
-                  <Badge key={index} colorScheme="blue">
+            {book.subjects && book.subjects.length > 0 && (
+              <HStack spacing={2} wrap="wrap">
+                {" "}
+                {book.subjects.slice(0, 5).map((subject, index) => (
+                  <Badge key={index} colorScheme="blue" variant="solid">
                     {subject.toUpperCase()}
                   </Badge>
                 ))}
               </HStack>
             )}
             {book.description && (
-              <Text noOfLines={3} fontSize="sm">
-                {typeof book.description === "string"
-                  ? book.description
-                  : book.description.value}
-              </Text>
+              <Box>
+                <Heading as="h3" size="md" mb={2}>
+                  Description
+                </Heading>
+                <Text fontSize={descriptionFontSize}>
+                  {" "}
+                  {typeof book.description === "string"
+                    ? book.description
+                    : book.description.value}
+                </Text>
+              </Box>
             )}
           </VStack>
-        </HStack>
-      </Box>
+        </GridItem>
+      </Grid>
 
-      <Flex justifyContent="center" mt={4} mb={6}>
+      <Flex justifyContent="center" mt={8}>
         <Button
           leftIcon={<ChevronLeftIcon />}
           onClick={handleBack}
           colorScheme="blue"
-          size="md"
+          size="lg"
           borderRadius="full"
           boxShadow="md"
-          px={8}
+          px={10}
           _hover={{
             transform: "translateY(-2px)",
             boxShadow: "lg",
@@ -132,6 +203,6 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
           Back to Books
         </Button>
       </Flex>
-    </VStack>
+    </Box>
   );
 };
