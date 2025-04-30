@@ -161,7 +161,7 @@ describe("BookDetails", () => {
         error={null}
       />
     );
-    expect(screen.getByText("by")).toBeInTheDocument();
+    expect(screen.getByText("Author")).toBeInTheDocument();
     expect(screen.queryByText(/F. Scott Fitzgerald/)).not.toBeInTheDocument();
   });
 

@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import {
   Box,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
   Image,
   Text,
   VStack,
@@ -105,6 +108,14 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
 
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
+      <Breadcrumb mb={6}>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/books">Books</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <BreadcrumbLink href="#">BookDetails</BreadcrumbLink>
+          </BreadcrumbItem>
+        </Breadcrumb>
       <Grid templateColumns={gridTemplateColumns} gap={6}>
         <GridItem>
           <Box
@@ -145,7 +156,7 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
             </Heading>
             <Text fontSize={textFontSize}>
               {" "}
-              by
+              Author
               {getAuthors() && (
                 <Text as="span" fontWeight="bold" ml={2}>
                   {getAuthors()}
