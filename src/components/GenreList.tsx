@@ -2,7 +2,7 @@ import React from "react";
 import { List, ListItem } from "@chakra-ui/react";
 import { Genre } from "./Books.type";
 
-interface GenreListProps {
+export interface GenreListProps {
   genres: Genre[];
   selectedGenre: Genre | null;
   onGenreSelect: (genre: Genre) => void;

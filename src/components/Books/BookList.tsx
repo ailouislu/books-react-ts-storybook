@@ -3,7 +3,7 @@ import { Box, Grid } from "@chakra-ui/react";
 import { Book } from "../Books.type";
 import { BookCard } from "../BookCard";
 
-interface BookListProps {
+export interface BookListProps {
   books: Book[];
   onBookClick: (bookId: string) => void;
 }

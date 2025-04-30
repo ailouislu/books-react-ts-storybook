@@ -3,7 +3,7 @@ import { Box, Divider, Heading, Image, Text } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
 
-interface BookCardProps {
+export interface BookCardProps {
   bookId: string;
 }
 

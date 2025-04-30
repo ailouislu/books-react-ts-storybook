@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Input, Text } from "@chakra-ui/react";
 
-interface SearchBarProps {
+export interface SearchBarProps {
   searchQuery: string;
   onSearch: (query: string) => void;
   bookCount: number;
