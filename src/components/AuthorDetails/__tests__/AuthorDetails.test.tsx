@@ -10,7 +10,6 @@ import {
 } from "../../../components/Books.type";
 
 jest.mock("../../../hooks/useOpenLibraryService");
-
 const mockUseOpenLibraryService = useOpenLibraryService as jest.MockedFunction<
   typeof useOpenLibraryService
 >;
@@ -23,7 +22,7 @@ const mockAuthor: Author = {
     value:
       "J.K. Rowling is a British author, best known for the Harry Potter series.",
   },
-  photos: true,
+  photos: ["photo-id-1"],
 };
 
 const createMockReturnValue = (overrides = {}) => ({
@@ -32,18 +31,32 @@ const createMockReturnValue = (overrides = {}) => ({
   author: mockAuthor,
   isLoading: false,
   error: null as string | null,
-  searchBooks: jest.fn().mockImplementation(() => Promise.resolve()),
-  getBookDetails: jest.fn().mockImplementation(() => Promise.resolve()),
-  getAuthorDetails: jest.fn().mockImplementation(() => Promise.resolve()),
+  searchBooks: jest.fn().mockResolvedValue(undefined),
+  getBookDetails: jest.fn().mockResolvedValue(undefined),
+  getAuthorDetails: jest.fn().mockResolvedValue(undefined),
   ...overrides,
 });
 
+beforeAll(() => {
+  window.matchMedia = jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  }));
+});
+
 jest.mock("@chakra-ui/react", () => {
-  const originalModule = jest.requireActual("@chakra-ui/react");
+  const mod = jest.requireActual("@chakra-ui/react");
   return {
     __esModule: true,
-    ...originalModule,
+    ...mod,
     Spinner: () => <div data-testid="spinner">Loading...</div>,
+    useBreakpointValue: (vals: any) => vals.base,
   };
 });
 
@@ -52,14 +65,10 @@ describe("AuthorDetails", () => {
     mockUseOpenLibraryService.mockReturnValue(createMockReturnValue());
   });
 
-  it("renders loading state", async () => {
-    mockUseOpenLibraryService.mockReturnValueOnce(
-      createMockReturnValue({
-        author: null,
-        isLoading: true,
-      })
+  it("renders loading state", () => {
+    mockUseOpenLibraryService.mockReturnValue(
+      createMockReturnValue({ author: null, isLoading: true })
     );
-
     render(
       <ChakraProvider>
         <MemoryRouter initialEntries={["/author/OL23919A"]}>
@@ -69,27 +78,23 @@ describe("AuthorDetails", () => {
         </MemoryRouter>
       </ChakraProvider>
     );
-
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });
 
   it("renders error state", () => {
     const errorMessage = "Failed to fetch author details. Please try again.";
-    mockUseOpenLibraryService.mockReturnValueOnce(
-      createMockReturnValue({
-        author: null,
-        error: errorMessage,
-      })
+    mockUseOpenLibraryService.mockReturnValue(
+      createMockReturnValue({ author: null, error: errorMessage })
     );
-
     render(
-      <MemoryRouter initialEntries={["/author/OL23919A"]}>
-        <Routes>
-          <Route path="/author/:authorId" element={<AuthorDetails />} />
-        </Routes>
-      </MemoryRouter>
+      <ChakraProvider>
+        <MemoryRouter initialEntries={["/author/OL23919A"]}>
+          <Routes>
+            <Route path="/author/:authorId" element={<AuthorDetails />} />
+          </Routes>
+        </MemoryRouter>
+      </ChakraProvider>
     );
-
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
@@ -103,47 +108,34 @@ describe("AuthorDetails", () => {
         </MemoryRouter>
       </ChakraProvider>
     );
-
     expect(screen.getByText("J.K. Rowling")).toBeInTheDocument();
     expect(screen.getByText("Birth Date: 1965-07-31")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        (content, element) =>
-          content.startsWith("Bio:") &&
-          content.includes(
-            "J.K. Rowling is a British author, best known for the Harry Potter series."
-          )
-      )
+      screen.getByText(/best known for the Harry Potter series\./)
     ).toBeInTheDocument();
-
-    expect(
-      screen.queryByAltText("Photo of J.K. Rowling")
-    ).not.toBeInTheDocument();
+    const img = screen.getByAltText("Photo of J.K. Rowling");
+    expect(img).toHaveAttribute("src", expect.stringContaining(".jpg"));
   });
 
   it("handles author with no photos", () => {
-    const authorWithNoPhotos: Author = {
-      ...mockAuthor,
-      photos: false,
-    };
-
-    mockUseOpenLibraryService.mockReturnValueOnce(
-      createMockReturnValue({
-        author: authorWithNoPhotos,
-      })
+    const authorWithNoPhotos: Author = { ...mockAuthor, photos: [] };
+    mockUseOpenLibraryService.mockReturnValue(
+      createMockReturnValue({ author: authorWithNoPhotos })
     );
-
     render(
-      <MemoryRouter initialEntries={["/author/OL23919A"]}>
-        <Routes>
-          <Route path="/author/:authorId" element={<AuthorDetails />} />
-        </Routes>
-      </MemoryRouter>
+      <ChakraProvider>
+        <MemoryRouter initialEntries={["/author/OL23919A"]}>
+          <Routes>
+            <Route path="/author/:authorId" element={<AuthorDetails />} />
+          </Routes>
+        </MemoryRouter>
+      </ChakraProvider>
     );
-
-    expect(
-      screen.queryByAltText("Photo of J.K. Rowling")
-    ).not.toBeInTheDocument();
+    const defaultImg = screen.getByAltText("Photo of J.K. Rowling");
+    expect(defaultImg).toHaveAttribute(
+      "src",
+      expect.stringContaining("default.jpg")
+    );
   });
 
   it("handles author with string bio", () => {
@@ -151,27 +143,18 @@ describe("AuthorDetails", () => {
       ...mockAuthor,
       bio: "This is a string bio.",
     };
-
-    mockUseOpenLibraryService.mockReturnValueOnce(
-      createMockReturnValue({
-        author: authorWithStringBio,
-      })
+    mockUseOpenLibraryService.mockReturnValue(
+      createMockReturnValue({ author: authorWithStringBio })
     );
-
     render(
-      <MemoryRouter initialEntries={["/author/OL23919A"]}>
-        <Routes>
-          <Route path="/author/:authorId" element={<AuthorDetails />} />
-        </Routes>
-      </MemoryRouter>
+      <ChakraProvider>
+        <MemoryRouter initialEntries={["/author/OL23919A"]}>
+          <Routes>
+            <Route path="/author/:authorId" element={<AuthorDetails />} />
+          </Routes>
+        </MemoryRouter>
+      </ChakraProvider>
     );
-
-    expect(
-      screen.getByText(
-        (content, element) =>
-          content.startsWith("Bio:") &&
-          content.includes("This is a string bio.")
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText("Bio: This is a string bio.")).toBeInTheDocument();
   });
 });

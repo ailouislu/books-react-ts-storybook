@@ -13,9 +13,10 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
-
+import defaultImage from "../../images/default.jpg";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
 
 export const AuthorDetails: React.FC = () => {
@@ -23,17 +24,36 @@ export const AuthorDetails: React.FC = () => {
   const { author, isLoading, error, getAuthorDetails } =
     useOpenLibraryService();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>(defaultImage);
   const navigate = useNavigate();
 
-  const handleBack = () => {
-    navigate("/authors");
-  };
+  useEffect(() => {
+    if (authorId) getAuthorDetails(authorId);
+  }, [authorId, getAuthorDetails]);
 
   useEffect(() => {
-    if (authorId) {
-      getAuthorDetails(authorId);
+    if (author) {
+      setImageLoaded(false);
+      if (Array.isArray(author.photos) && author.photos.length > 0) {
+        setImageSrc(
+          `https://covers.openlibrary.org/b/id/${author.photos[0]}-L.jpg`
+        );
+      } else {
+        setImageSrc(defaultImage);
+      }
     }
-  }, [authorId, getAuthorDetails]);
+  }, [author]);
+
+  const gridTemplate = useBreakpointValue({ base: "1fr", md: "3fr 7fr" });
+  const imageWidth = useBreakpointValue({
+    base: "80%",
+    sm: "60%",
+    md: "250px",
+  });
+  const imageHeight = useBreakpointValue({ base: "auto", md: "400px" });
+  const headingSize = useBreakpointValue({ base: "xl", md: "2xl" });
+  const textSize = useBreakpointValue({ base: "sm", md: "md" });
+  const containerMaxW = useBreakpointValue({ base: "100%", md: "1250px" });
 
   if (isLoading) {
     return (
@@ -53,17 +73,17 @@ export const AuthorDetails: React.FC = () => {
     );
   }
 
-  const gridTemplateColumns = {
-    base: "1fr",
-    md: "3fr 7fr",
-  };
-
-  if (!author) {
-    return <Text>No author details available.</Text>;
-  }
+  if (!author) return <Text>No author details available.</Text>;
 
   return (
-    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
+    <Box
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+      p={4}
+      maxW={containerMaxW}
+      mx="auto"
+    >
       <Breadcrumb mb={6}>
         <BreadcrumbItem>
           <BreadcrumbLink href="/authors">Authors</BreadcrumbLink>
@@ -72,51 +92,39 @@ export const AuthorDetails: React.FC = () => {
           <BreadcrumbLink href="#">AuthorDetails</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <Grid templateColumns={gridTemplateColumns} gap={6}>
+      <Grid templateColumns={gridTemplate} gap={6}>
         <GridItem>
-          <Box
-            position="relative"
-            width={{ base: "80%", sm: "60%", md: "300px" }}
-            height={{ base: "auto", md: "100%" }}
-            mx="auto"
-          >
+          <Box position="relative" w={imageWidth} h={imageHeight} mx="auto">
             {!imageLoaded && (
-              <Center
-                position="absolute"
-                top="0"
-                left="0"
-                width="100%"
-                height="100%"
-              >
+              <Center position="absolute" top="0" left="0" w="100%" h="100%">
                 <Spinner />
               </Center>
             )}
-            {Array.isArray(author.photos) && author.photos.length > 0 && (
-              <Image
-                src={`https://covers.openlibrary.org/b/id/${author.photos[0]}-L.jpg`}
-                alt={`Photo of ${author.name}`}
-                width="100%"
-                height="100%"
-                objectFit="contain"
-                onLoad={() => setImageLoaded(true)}
-                opacity={imageLoaded ? 1 : 0}
-                transition="opacity 0.3s"
-              />
-            )}
+            <Image
+              src={imageSrc}
+              alt={`Photo of ${author.name}`}
+              w="100%"
+              h="100%"
+              objectFit="contain"
+              onLoad={() => setImageLoaded(true)}
+              opacity={imageLoaded ? 1 : 0}
+              transition="opacity 0.3s"
+            />
           </Box>
         </GridItem>
         <GridItem>
           <Box>
-            <Heading as="h2" size="xl">
+            <Heading as="h2" size={headingSize}>
               {author.name}
             </Heading>
-            <Text mt={2}>Birth Date: {author.birth_date}</Text>
-            <Text mt={2}>
+            <Text mt={2} fontSize={textSize}>
+              Birth Date: {author.birth_date}
+            </Text>
+            <Text mt={2} fontSize={textSize}>
               Bio:{" "}
-              {author.bio && typeof author.bio === "string"
+              {typeof author.bio === "string"
                 ? author.bio
-                : typeof author.bio === "object" &&
-                    author.bio.value !== undefined
+                : author.bio && "value" in author.bio
                   ? author.bio.value
                   : ""}
             </Text>
@@ -126,16 +134,13 @@ export const AuthorDetails: React.FC = () => {
       <Center mt={8}>
         <Button
           leftIcon={<ChevronLeftIcon />}
-          onClick={handleBack}
+          onClick={() => navigate("/authors")}
           colorScheme="blue"
           size="lg"
           borderRadius="full"
           boxShadow="md"
           px={10}
-          _hover={{
-            transform: "translateY(-2px)",
-            boxShadow: "lg",
-          }}
+          _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
           transition="all 0.2s"
         >
           Back to Authors
