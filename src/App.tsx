@@ -5,6 +5,7 @@ import { BookPage } from "./components/BookDetails/BookPage";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import NotFound from "./components/NotFound";
+import { AuthorDetails } from "./components/AuthorDetails/AuthorDetails";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/books/:bookKey" element={<BookPage />} />
             <Route path="/books" element={<Books />} />
+            <Route path="/authors/:authorId" element={<AuthorDetails />} />
             <Route path="/" element={<Navigate replace to="/books" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -8,6 +8,7 @@ export interface OpenLibraryBook {
   key: string;
   title: string;
   author_name?: string[];
+  author_key?: string[];
   first_publish_year?: number;
   publisher?: string[];
   isbn?: string[];
@@ -21,6 +22,7 @@ export interface OpenLibraryBookDetails {
     author: {
       key: string;
       name: string;
+      authorId?: string;
     };
   }[];
   description?:
@@ -42,6 +44,7 @@ export interface Book {
   format: string;
   releaseDate: string;
   author: string;
+  authorId?: string;
   price: number;
   publisherRRP: number;
   pages: number;
@@ -56,7 +59,7 @@ export interface Book {
 export interface Author {
   key: string;
   name: string;
-  photos:string[];
+  photos: string[];
   birth_date: string;
   bio: string | { value: string };
 }

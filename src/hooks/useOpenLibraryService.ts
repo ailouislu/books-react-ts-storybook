@@ -9,6 +9,11 @@ import {
 
 const BASE_URL = 'https://openlibrary.org';
 
+const extractAuthorId = (authorKey: string): string => {
+  const matches = authorKey.match(/\/authors\/([^\/]+)$/);
+  return matches ? matches[1] : '';
+};
+
 export const useOpenLibraryService = () => {
   const [books, setBooks] = useState<OpenLibraryBook[]>([]);
   const [book, setBook] = useState<OpenLibraryBookDetails | null>(null);
@@ -36,15 +41,22 @@ export const useOpenLibraryService = () => {
     }
   }, []);
 
-  const getAuthorName = async (authorKey: string): Promise<string> => {
+  const getAuthorDetails = useCallback(async (authorKey: string): Promise<{ name: string, authorId: string }> => {
     try {
+      const authorId = extractAuthorId(authorKey);
       const response = await axios.get<Author>(`${BASE_URL}${authorKey}.json`);
-      return response.data.name;
+      return {
+        name: response.data.name,
+        authorId: authorId
+      };
     } catch (err) {
       console.error('Error fetching author details:', err);
-      return 'Unknown Author';
+      return {
+        name: 'Unknown Author',
+        authorId: ''
+      };
     }
-  };
+  }, []);
 
   const getBookDetails = useCallback(async (bookKey: string) => {
     setIsLoading(true);
@@ -60,12 +72,18 @@ export const useOpenLibraryService = () => {
       const bookData = response.data;
 
       if (bookData.authors) {
-        const authorPromises = bookData.authors.map((author) =>
-          getAuthorName(author.author.key)
+        const authorDetailsPromises = bookData.authors.map((author) =>
+          getAuthorDetails(author.author.key)
         );
-        const authorNames = await Promise.all(authorPromises);
-        bookData.authors = authorNames.map((name) => ({
-          author: { key: '', name },
+        
+        const authorDetailsResults = await Promise.all(authorDetailsPromises);
+        
+        bookData.authors = authorDetailsResults.map((details) => ({
+          author: { 
+            key: '', 
+            name: details.name,
+            authorId: details.authorId 
+          },
         }));
       }
 
@@ -83,7 +101,7 @@ export const useOpenLibraryService = () => {
     }
   }, []);
 
-  const getAuthorDetails = useCallback(async (authorId: string) => {
+  const getAuthorDetails2 = useCallback(async (authorId: string) => {
     setIsLoading(true);
     setError(null);
     setAuthor(null);
@@ -99,5 +117,14 @@ export const useOpenLibraryService = () => {
     }
   }, []);
    
-  return { books, book, author, isLoading, error, searchBooks, getBookDetails, getAuthorDetails };
+  return { 
+    books, 
+    book, 
+    author, 
+    isLoading, 
+    error, 
+    searchBooks, 
+    getBookDetails, 
+    getAuthorDetails: getAuthorDetails2 
+  };
 };

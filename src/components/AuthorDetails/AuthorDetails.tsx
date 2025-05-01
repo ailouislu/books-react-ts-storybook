@@ -62,58 +62,68 @@ export const AuthorDetails: React.FC = () => {
     return <Text>No author details available.</Text>;
   }
 
-  return (    
-<Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
-    <Breadcrumb mb={6}>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/authors">Authors</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink href="#">AuthorDetails</BreadcrumbLink>
-          </BreadcrumbItem>
-        </Breadcrumb>
-<Grid templateColumns={gridTemplateColumns} gap={6}>
-<GridItem>
-<Box
-position="relative"
-width={{ base: "80%", sm: "60%", md: "300px" }}
-height={{ base: "auto", md: "100%" }}
-mx="auto"
->
-{!imageLoaded && (
-<Center
-position="absolute"
-top="0"
-left="0"
-width="100%"
-height="100%"
->
-<Spinner />
-</Center>
-)}
-{Array.isArray(author.photos) && author.photos.length > 0 && (
-<Image
-src={`https://covers.openlibrary.org/b/id/${author.photos[0]}-L.jpg`}
-alt={`Photo of ${author.name}`}
-width="100%"
-height="100%"
-objectFit="contain"
-onLoad={() => setImageLoaded(true)}
-opacity={imageLoaded ? 1 : 0}
-transition="opacity 0.3s"
-/>
-)}
-</Box>
-</GridItem>
-<GridItem>
-<Box>
-<Heading as="h2" size="xl">{author.name}</Heading>
-<Text mt={2}>Birth Date: {author.birth_date}</Text>
-<Text mt={2}>Bio: {typeof author.bio === "string" ? author.bio : author.bio.value}</Text>
-</Box>
-</GridItem>
-</Grid>
- <Center mt={8}>
+  return (
+    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
+      <Breadcrumb mb={6}>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/authors">Authors</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink href="#">AuthorDetails</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
+      <Grid templateColumns={gridTemplateColumns} gap={6}>
+        <GridItem>
+          <Box
+            position="relative"
+            width={{ base: "80%", sm: "60%", md: "300px" }}
+            height={{ base: "auto", md: "100%" }}
+            mx="auto"
+          >
+            {!imageLoaded && (
+              <Center
+                position="absolute"
+                top="0"
+                left="0"
+                width="100%"
+                height="100%"
+              >
+                <Spinner />
+              </Center>
+            )}
+            {Array.isArray(author.photos) && author.photos.length > 0 && (
+              <Image
+                src={`https://covers.openlibrary.org/b/id/${author.photos[0]}-L.jpg`}
+                alt={`Photo of ${author.name}`}
+                width="100%"
+                height="100%"
+                objectFit="contain"
+                onLoad={() => setImageLoaded(true)}
+                opacity={imageLoaded ? 1 : 0}
+                transition="opacity 0.3s"
+              />
+            )}
+          </Box>
+        </GridItem>
+        <GridItem>
+          <Box>
+            <Heading as="h2" size="xl">
+              {author.name}
+            </Heading>
+            <Text mt={2}>Birth Date: {author.birth_date}</Text>
+            <Text mt={2}>
+              Bio:{" "}
+              {author.bio && typeof author.bio === "string"
+                ? author.bio
+                : typeof author.bio === "object" &&
+                    author.bio.value !== undefined
+                  ? author.bio.value
+                  : ""}
+            </Text>
+          </Box>
+        </GridItem>
+      </Grid>
+      <Center mt={8}>
         <Button
           leftIcon={<ChevronLeftIcon />}
           onClick={handleBack}
@@ -131,6 +141,6 @@ transition="opacity 0.3s"
           Back to Authors
         </Button>
       </Center>
-</Box>
+    </Box>
   );
 };

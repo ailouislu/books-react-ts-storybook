@@ -17,9 +17,10 @@ import {
   Grid,
   GridItem,
   useBreakpointValue,
+  Link,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { OpenLibraryBookDetails } from "../Books.type";
 
 interface BookDetailsProps {
@@ -96,12 +97,28 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
     );
   }
 
-  const getAuthors = () => {
+  const getAuthorsWithLinks = () => {
     if (book.authors && book.authors.length > 0) {
-      const authorNames = book.authors
-        .map((author) => author.author?.name)
-        .filter(Boolean);
-      return authorNames.join("、");
+      return book.authors.map((author, index, array) => (
+        <React.Fragment key={author.author?.key || index}>
+          {author.author?.authorId ? (
+            <Link
+              as={RouterLink}
+              to={`/authors/${author.author.authorId}`}
+              color="blue.500"
+              fontWeight="bold"
+              _hover={{ textDecoration: "underline" }}
+            >
+              {author.author.name}
+            </Link>
+          ) : (
+            <Text as="span" fontWeight="bold">
+              {author.author?.name}
+            </Text>
+          )}
+          {index < array.length - 1 && "、"}
+        </React.Fragment>
+      ));
     }
     return "";
   };
@@ -109,13 +126,13 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4}>
       <Breadcrumb mb={6}>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/books">Books</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink href="#">BookDetails</BreadcrumbLink>
-          </BreadcrumbItem>
-        </Breadcrumb>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/books">Books</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink href="#">BookDetails</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
       <Grid templateColumns={gridTemplateColumns} gap={6}>
         <GridItem>
           <Box
@@ -156,12 +173,10 @@ export const BookDetails: React.FC<BookDetailsProps> = ({
             </Heading>
             <Text fontSize={textFontSize}>
               {" "}
-              Author
-              {getAuthors() && (
-                <Text as="span" fontWeight="bold" ml={2}>
-                  {getAuthors()}
-                </Text>
-              )}
+              Author:
+              <Text as="span" ml={2}>
+                {getAuthorsWithLinks()}
+              </Text>
             </Text>
             {book.first_publish_date && (
               <Text fontSize={textFontSize} color="gray.600">
