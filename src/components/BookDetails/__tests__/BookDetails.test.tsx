@@ -161,7 +161,7 @@ describe("BookDetails", () => {
         error={null}
       />
     );
-    expect(screen.getByText("Author")).toBeInTheDocument();
+    expect(screen.getByText(/Author:/)).toBeInTheDocument();
     expect(screen.queryByText(/F. Scott Fitzgerald/)).not.toBeInTheDocument();
   });
 
@@ -181,7 +181,9 @@ describe("BookDetails", () => {
         error={null}
       />
     );
-    expect(screen.getByText("Author One、Author Two")).toBeInTheDocument();
+    expect(screen.getByText(/Author:/)).toBeInTheDocument();
+    expect(screen.getByText(/Author One/)).toBeInTheDocument();
+    expect(screen.getByText(/Author Two/)).toBeInTheDocument();
   });
 
   it("handles book with string description", () => {
