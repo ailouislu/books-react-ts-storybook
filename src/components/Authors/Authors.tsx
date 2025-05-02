@@ -10,7 +10,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Heading,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorsData } from "../../hooks/useAuthorsData";
@@ -56,8 +55,6 @@ const Authors: React.FC<AuthorsProps> = ({ subject }) => {
           <BreadcrumbLink href="#">Authors</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-
-      <Heading mb={4}>{localSelectedGenre.name} Authors</Heading>
 
       <Grid templateColumns={{ base: "1fr", md: "3fr 9fr" }} gap={6}>
         <GridItem>
