@@ -134,7 +134,7 @@ export const AuthorDetails: React.FC = () => {
       <Center mt={8}>
         <Button
           leftIcon={<ChevronLeftIcon />}
-          onClick={() => navigate("/authors")}
+          onClick={() => navigate(-1)}
           colorScheme="blue"
           size="lg"
           borderRadius="full"

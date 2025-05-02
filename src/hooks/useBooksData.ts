@@ -46,7 +46,6 @@ export const useBooksData = (genre: string) => {
       const nextPage = page + 1;
       const offset = nextPage * limit;
       const { books: newBooks, total: newTotal } = await getBooksByGenre(genre, limit, offset);
-      // merge unique
       setBooks(prev => {
         const unique = newBooks.filter(nb => !prev.some(pb => pb.id === nb.id));
         return [...prev, ...unique];
