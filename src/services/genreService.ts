@@ -11,27 +11,44 @@ export const genreNames = [
   { id: "teen", name: "Teen" },
 ];
 
-export async function getBooksByGenre(genre: string): Promise<Book[]> {
+export async function getBooksByGenre(
+  genre: string,
+  limit: number = 9,
+  offset: number = 0
+): Promise<{ books: Book[]; total: number }> {
   try {
-    const response = await axios.get(`${BASE_URL}/${genre}.json`);
-    
-    if (!response.data || !response.data.works || !Array.isArray(response.data.works)) {
-      console.warn(`Invalid data structure for genre ${genre}:`, response.data);
-      return [];
+    const response = await axios.get(`${BASE_URL}/${genre}.json`, {
+      params: { limit, offset }
+    });
+    const works = response.data?.works;
+    if (!Array.isArray(works)) {
+      return { books: [], total: 0 };
     }
-    
-    const books = response.data.works.map((work: any) => ({
+    const books: Book[] = works.map((work: any) => ({
       id: work.key,
       title: work.title,
-      author: Array.isArray(work.authors) 
-        ? work.authors.map((author: any) => author.name).join(', ')
-        : 'Unknown Author',
+      subtitle: work.subtitle || "",
       type: genre,
+      format: "Paperback",
+      releaseDate: work.first_publish_year?.toString() ?? "Unknown",
+      author: Array.isArray(work.authors)
+        ? work.authors.map((a: any) => a.name).join(', ')
+        : "Unknown Author",
+      price: 0,
+      publisherRRP: 0,
+      pages: work.edition_count || 0,
+      description: work.description ?? "",
+      dimensions: "",
+      wishList: false,
+      bestSeller: false,
+      isbn: Array.isArray(work.isbn) && work.isbn.length > 0 ? work.isbn[0] : "",
+      publisher: Array.isArray(work.publisher) && work.publisher.length > 0
+        ? work.publisher[0]
+        : "Unknown",
     }));
-    
-    return books.slice(0, 6);
-  } catch (error) {
-    console.error(`Error fetching books for genre ${genre}:`, error);
-    return [];
+    const total = response.data.work_count ?? books.length;
+    return { books, total };
+  } catch {
+    return { books: [], total: 0 };
   }
 }

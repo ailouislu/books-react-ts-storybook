@@ -77,16 +77,12 @@ describe("Books component", () => {
       error: "Error fetching books",
     });
     renderComponent();
-    expect(
-      screen.getByText("An error occurred while fetching data.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("An error occurred.")).toBeInTheDocument();
   });
 
   it("renders no books message when filtered books is empty", () => {
     renderComponent();
-    expect(
-      screen.getByText("There are no books in the database.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("No books match.")).toBeInTheDocument();
   });
 
   it("renders BookList when filtered books exist", () => {

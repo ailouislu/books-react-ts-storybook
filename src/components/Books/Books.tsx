@@ -17,28 +17,15 @@ import { useGenresStore } from "../../hooks/useGenresData";
 import BookList from "./BookList";
 import GenreList from "../GenreList";
 import SearchBar from "../SearchBar";
-import { Book, Genre } from "../Books.type";
+import { Genre } from "../Books.type";
 
-interface BooksProps {
-  books?: Book[];
-  isLoading?: boolean;
-  error?: string | null;
-  searchBooks?: (query: string) => void;
-  handleGenreSelect?: (genre: Genre) => void;
-  handleSearch?: (query: string) => void;
-  handleBookClick?: (bookId: string) => void;
-  selectedGenre?: Genre;
-  searchQuery?: string;
-}
-
-const Books: React.FC<BooksProps> = () => {
-  const [localSearchQuery, setLocalSearchQuery] = useState<string>("");
+const Books = () => {
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [localSelectedGenre, setLocalSelectedGenre] = useState<Genre>({
     id: "popular",
     name: "Popular",
   });
   const navigate = useNavigate();
-
   const { genres, fetchGenres } = useGenresStore();
 
   useEffect(() => {
@@ -50,24 +37,14 @@ const Books: React.FC<BooksProps> = () => {
     setLocalSearchQuery("");
   };
 
-  const handleSearch = (query: string) => {
-    setLocalSearchQuery(query);
-  };
+  const handleSearch = (query: string) => setLocalSearchQuery(query);
 
-  const gridTemplateColumns = useBreakpointValue({
-    base: "repeat(1, 1fr)",
-    md: "repeat(12, 1fr)",
+  const gridCols = useBreakpointValue({
+    base: "repeat(1,1fr)",
+    md: "repeat(12,1fr)",
   });
-
-  const genreListColSpan = useBreakpointValue({
-    base: 12,
-    md: 3,
-  });
-
-  const bookListColSpan = useBreakpointValue({
-    base: 12,
-    md: 9,
-  });
+  const genreSpan = useBreakpointValue({ base: 12, md: 3 });
+  const bookSpan = useBreakpointValue({ base: 12, md: 9 });
 
   return (
     <Box p={5}>
@@ -80,24 +57,20 @@ const Books: React.FC<BooksProps> = () => {
             <BreadcrumbLink href="#">Books</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
-        <Grid templateColumns={gridTemplateColumns} gap={6}>
-          <GridItem colSpan={genreListColSpan}>
+        <Grid templateColumns={gridCols} gap={6}>
+          <GridItem colSpan={genreSpan}>
             <GenreList
               genres={genres}
               selectedGenre={localSelectedGenre}
               onGenreSelect={handleGenreSelect}
             />
           </GridItem>
-          <GridItem colSpan={bookListColSpan}>
-            <SearchBar
-              searchQuery={localSearchQuery}
-              onSearch={handleSearch}
-              bookCount={0}
-            />
+          <GridItem colSpan={bookSpan}>
             <BookListContainer
               selectedGenre={localSelectedGenre}
               searchQuery={localSearchQuery}
-              onBookClick={(bookId: string) => navigate(`/books/${bookId}`)}
+              onBookClick={(id) => navigate(`/books/${id}`)}
+              onSearch={handleSearch}
             />
           </GridItem>
         </Grid>
@@ -110,42 +83,85 @@ interface BookListContainerProps {
   selectedGenre: Genre;
   searchQuery: string;
   onBookClick: (bookId: string) => void;
+  onSearch: (query: string) => void;
 }
 
 const BookListContainer: React.FC<BookListContainerProps> = ({
   selectedGenre,
   searchQuery,
   onBookClick,
+  onSearch,
 }) => {
-  const { books, isLoading, error } = useBooksData(selectedGenre.id);
+  const { books, total, isLoading, error, hasMore, loadMore } = useBooksData(
+    selectedGenre.id
+  );
 
-  const filteredBooks = books.filter((book: Book) => {
-    if (
-      searchQuery &&
-      !book.title.toLowerCase().startsWith(searchQuery.toLowerCase())
-    ) {
-      return false;
-    }
-    return true;
-  });
+  const filtered = books.filter(
+    (b) =>
+      !searchQuery || b.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  if (isLoading) {
+  if (isLoading && books.length === 0) {
     return (
-      <Center>
-        <Spinner />
-      </Center>
+      <>
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearch={onSearch}
+          bookCount={0}
+        />
+        <Center>
+          <Spinner />
+        </Center>
+      </>
     );
   }
 
   if (error) {
-    return <Center>An error occurred while fetching data.</Center>;
+    return (
+      <>
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearch={onSearch}
+          bookCount={0}
+        />
+        <Center>An error occurred.</Center>
+      </>
+    );
   }
 
-  if (filteredBooks.length === 0) {
-    return <Center>There are no books in the database.</Center>;
+  if (filtered.length === 0) {
+    return (
+      <>
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearch={onSearch}
+          bookCount={0}
+        />
+        <Center>No books match.</Center>
+      </>
+    );
   }
 
-  return <BookList books={filteredBooks} onBookClick={onBookClick} />;
+  return (
+    <>
+      <Box mb={4}>
+        Showing <strong>{filtered.length}</strong> of <strong>{total}</strong>{" "}
+        books
+      </Box>
+      <SearchBar
+        searchQuery={searchQuery}
+        onSearch={onSearch}
+        bookCount={filtered.length}
+      />
+      <BookList
+        books={filtered}
+        onBookClick={onBookClick}
+        hasMore={hasMore}
+        isLoadingMore={isLoading}
+        onLoadMore={loadMore}
+      />
+    </>
+  );
 };
 
 export default Books;

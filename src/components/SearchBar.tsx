@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Input, Text } from "@chakra-ui/react";
+import { Box, Input } from "@chakra-ui/react";
 
 export interface SearchBarProps {
   searchQuery: string;
@@ -14,7 +14,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   return (
     <Box mb={4}>
-      <Text>Showing {bookCount} books in the database.</Text>
       <Input
         placeholder="Search..."
         value={searchQuery}
