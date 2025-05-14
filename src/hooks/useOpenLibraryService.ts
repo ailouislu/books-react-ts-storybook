@@ -10,8 +10,8 @@ import {
 const BASE_URL = 'https://openlibrary.org';
 
 const extractAuthorId = (authorKey: string): string => {
-  const matches = authorKey.match(/\/authors\/([^\/]+)$/);
-  return matches ? matches[1] : '';
+  const parts = authorKey.split('/');
+  return parts[parts.length - 1] || '';
 };
 
 export const useOpenLibraryService = () => {
@@ -99,7 +99,7 @@ export const useOpenLibraryService = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getAuthorDetails]);
 
   const getAuthorDetails2 = useCallback(async (authorId: string) => {
     setIsLoading(true);
