@@ -8,8 +8,9 @@ import {
   Container,
   Grid,
   GridItem,
-  Spinner,
   useBreakpointValue,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useBooksData } from "../../hooks/useBooksData";
@@ -110,7 +111,25 @@ const BookListContainer: React.FC<BookListContainerProps> = ({
           bookCount={0}
         />
         <Center>
-          <Spinner />
+          <Grid
+            templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
+            gap={6}
+            width="100%"
+          >
+            {[...Array(6)].map((_, index) => (
+              <Box
+                key={index}
+                padding="6"
+                boxShadow="lg"
+                bg="white"
+                borderRadius="lg"
+              >
+                <Skeleton height="400px" mb="3" />
+                <SkeletonText mt="4" noOfLines={2} spacing="4" />
+                <SkeletonText mt="4" noOfLines={1} spacing="4" width="70%" />
+              </Box>
+            ))}
+          </Grid>
         </Center>
       </>
     );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Divider, Heading, Image, Text } from "@chakra-ui/react";
+import { Box, Divider, Heading, Image, Text, Skeleton, SkeletonText } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
 
@@ -42,7 +42,21 @@ export const BookCard: React.FC<BookCardProps> = ({ bookId }) => {
   }, [book]);
 
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return (
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        overflow="hidden"
+        p={4}
+        display="flex"
+        flexDirection="column"
+        height="100%"
+      >
+        <Skeleton height="400px" mb={3} />
+        <SkeletonText mt="4" noOfLines={2} spacing="4" />
+        <Skeleton mt="4" height="20px" width="50%" />
+      </Box>
+    );
   }
 
   if (error) {
