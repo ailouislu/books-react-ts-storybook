@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Spinner, Text, Box, Container, Button, Flex } from "@chakra-ui/react"; // Import Container
+import { Text, Box, Container, Button, Flex, Skeleton, SkeletonText } from "@chakra-ui/react";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { BookDetails } from "./BookDetails";
 import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
@@ -56,7 +56,17 @@ export const BookPage: React.FC = () => {
   if (isLoading) {
     return (
       <Container maxW="container.xl" py={8}>
-        <Spinner />
+        <Flex direction={{ base: "column", md: "row" }} alignItems="flex-start">
+          <Box w={{ base: "100%", md: "30%" }} mr={{ md: 8 }} mb={{ base: 6, md: 0 }}>
+            <Skeleton height="300px" width="100%" />
+          </Box>
+          <Box w={{ base: "100%", md: "70%" }}>
+            <SkeletonText mt="4" noOfLines={1} spacing="4" skeletonHeight="4" width="50%" />
+            <SkeletonText mt="8" noOfLines={10} spacing="4" skeletonHeight="3" />
+            <SkeletonText mt="8" noOfLines={1} spacing="4" skeletonHeight="4" width="30%" />
+            <SkeletonText mt="4" noOfLines={1} spacing="4" skeletonHeight="4" width="40%" />
+          </Box>
+        </Flex>
       </Container>
     );
   }
