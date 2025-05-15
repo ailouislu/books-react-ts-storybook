@@ -1,7 +1,7 @@
-import axios from 'axios';
-import { Book } from '../components/Books.type';
+import axios from "axios";
+import { Book } from "../components/Books.type";
 
-const BASE_URL = 'https://openlibrary.org/subjects';
+const BASE_URL = "https://openlibrary.org/subjects";
 
 export const genreNames = [
   { id: "popular", name: "Popular" },
@@ -18,7 +18,7 @@ export async function getBooksByGenre(
 ): Promise<{ books: Book[]; total: number }> {
   try {
     const response = await axios.get(`${BASE_URL}/${genre}.json`, {
-      params: { limit, offset }
+      params: { limit, offset },
     });
     const works = response.data?.works;
     if (!Array.isArray(works)) {
@@ -32,7 +32,7 @@ export async function getBooksByGenre(
       format: "Paperback",
       releaseDate: work.first_publish_year?.toString() ?? "Unknown",
       author: Array.isArray(work.authors)
-        ? work.authors.map((a: any) => a.name).join(', ')
+        ? work.authors.map((a: any) => a.name).join(", ")
         : "Unknown Author",
       price: 0,
       publisherRRP: 0,
@@ -41,10 +41,12 @@ export async function getBooksByGenre(
       dimensions: "",
       wishList: false,
       bestSeller: false,
-      isbn: Array.isArray(work.isbn) && work.isbn.length > 0 ? work.isbn[0] : "",
-      publisher: Array.isArray(work.publisher) && work.publisher.length > 0
-        ? work.publisher[0]
-        : "Unknown",
+      isbn:
+        Array.isArray(work.isbn) && work.isbn.length > 0 ? work.isbn[0] : "",
+      publisher:
+        Array.isArray(work.publisher) && work.publisher.length > 0
+          ? work.publisher[0]
+          : "Unknown",
     }));
     const total = response.data.work_count ?? books.length;
     return { books, total };
