@@ -80,7 +80,6 @@ const Authors: React.FC<AuthorsProps> = ({ subject }) => {
             Showing <strong>{filtered.length}</strong> of{" "}
             <strong>{total}</strong> authors
           </Box>
-          {/* Skeleton Loader */}
           {isLoading && authors.length === 0 && (
             <Center>
               <Grid
@@ -89,12 +88,10 @@ const Authors: React.FC<AuthorsProps> = ({ subject }) => {
                 width="100%"
               >
                 {[...Array(9)].map((_, index) => (
-                  <Box
-                    key={index}
-                    p={4}
-                    textAlign="center"
-                  >
-                    <SkeletonCircle size='20' mb={2} /><Skeleton height="20px" width="80%" mx="auto" /> </Box>
+                  <Box key={index} p={4} textAlign="center">
+                    <SkeletonCircle size="20" mb={2} />
+                    <Skeleton height="20px" width="80%" mx="auto" />{" "}
+                  </Box>
                 ))}
               </Grid>
             </Center>

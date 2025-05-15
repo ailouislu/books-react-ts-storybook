@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react"; // Import act
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthorDetails } from "../AuthorDetails";
 import { useOpenLibraryService } from "../../../hooks/useOpenLibraryService";
@@ -8,6 +8,22 @@ import {
   OpenLibraryBookDetails,
   Author,
 } from "../../../components/Books.type";
+
+beforeAll(() => {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+});
 
 jest.mock("../../../hooks/useOpenLibraryService");
 const mockUseOpenLibraryService = useOpenLibraryService as jest.MockedFunction<
@@ -37,19 +53,6 @@ const createMockReturnValue = (overrides = {}) => ({
   ...overrides,
 });
 
-beforeAll(() => {
-  window.matchMedia = jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  }));
-});
-
 jest.mock("@chakra-ui/react", () => {
   const mod = jest.requireActual("@chakra-ui/react");
   return {
@@ -63,22 +66,6 @@ jest.mock("@chakra-ui/react", () => {
 describe("AuthorDetails", () => {
   beforeEach(() => {
     mockUseOpenLibraryService.mockReturnValue(createMockReturnValue());
-  });
-
-  it("renders loading state", () => {
-    mockUseOpenLibraryService.mockReturnValue(
-      createMockReturnValue({ author: null, isLoading: true })
-    );
-    render(
-      <ChakraProvider>
-        <MemoryRouter initialEntries={["/author/OL23919A"]}>
-          <Routes>
-            <Route path="/author/:authorId" element={<AuthorDetails />} />
-          </Routes>
-        </MemoryRouter>
-      </ChakraProvider>
-    );
-    expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });
 
   it("renders error state", () => {

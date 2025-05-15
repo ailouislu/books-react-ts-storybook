@@ -14,8 +14,8 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   useBreakpointValue,
- Skeleton,
- SkeletonText,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { useOpenLibraryService } from "../../hooks/useOpenLibraryService";
 import defaultImage from "../../images/default.jpg";
@@ -60,18 +60,26 @@ export const AuthorDetails: React.FC = () => {
   if (isLoading) {
     return (
       <Center minH="calc(100vh - 120px)">
- <Grid templateColumns={{ base: "1fr", md: "3fr 7fr" }} gap={6} width="100%">
- <GridItem>
- <Skeleton height={{ base: "300px", md: "400px" }} width={{ base: "80%", sm: "60%", md: "250px" }} mx="auto" />
- </GridItem>
- <GridItem>
- <Box>
- <Skeleton height="30px" width="70%" mb="4" />
- <SkeletonText mt="4" noOfLines={2} spacing="4" width="90%" />
- <SkeletonText mt="4" noOfLines={4} spacing="4" width="80%" />
- </Box>
- </GridItem>
- </Grid>
+        <Grid
+          templateColumns={{ base: "1fr", md: "3fr 7fr" }}
+          gap={6}
+          width="100%"
+        >
+          <GridItem>
+            <Skeleton
+              height={{ base: "300px", md: "400px" }}
+              width={{ base: "80%", sm: "60%", md: "250px" }}
+              mx="auto"
+            />
+          </GridItem>
+          <GridItem>
+            <Box>
+              <Skeleton height="30px" width="70%" mb="4" />
+              <SkeletonText mt="4" noOfLines={2} spacing="4" width="90%" />
+              <SkeletonText mt="4" noOfLines={4} spacing="4" width="80%" />
+            </Box>
+          </GridItem>
+        </Grid>
       </Center>
     );
   }

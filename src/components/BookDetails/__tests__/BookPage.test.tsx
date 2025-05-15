@@ -3,7 +3,6 @@ import { BookPage } from "../BookPage";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { useOpenLibraryService } from "../../../hooks/useOpenLibraryService";
 import { act } from "react";
-
 jest.mock("@chakra-ui/react", () => {
   const actual = jest.requireActual("@chakra-ui/react");
   return {
@@ -13,15 +12,25 @@ jest.mock("@chakra-ui/react", () => {
     Image: () => null,
     useBreakpointValue: (values: any) => {
       // Mocking useBreakpointValue to return a fixed value
-      if (typeof values === 'object' && values.md) {
+      if (typeof values === "object" && values.md) {
         return values.md;
       }
       if (Array.isArray(values) && values[1]) {
-        return values[1]
+        return values[1];
       }
 
       return values;
     },
+    Skeleton: ({ children, ...props }: any) => (
+      <div data-testid="skeleton" {...props}>
+        {children}
+      </div>
+    ),
+    SkeletonText: ({ children, ...props }: any) => (
+      <div data-testid="skeleton-text" {...props}>
+        {children}
+      </div>
+    ),
   };
 });
 
@@ -64,7 +73,7 @@ describe("BookPage", () => {
     jest.clearAllMocks();
   });
 
-  it("renders loading state", async () => {
+  it("renders loading skeletons when isLoading is true", async () => {
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       book: null,
       isLoading: true,
@@ -76,7 +85,8 @@ describe("BookPage", () => {
       renderWithRouter("OL12345W");
     });
 
-    expect(screen.getByTestId("spinner")).toBeInTheDocument();
+    expect(screen.getAllByTestId("skeleton").length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId("skeleton-text").length).toBeGreaterThan(0);
   });
 
   it("renders error state", async () => {
@@ -91,7 +101,7 @@ describe("BookPage", () => {
       renderWithRouter("OL12345W");
     });
 
-    expect(screen.getByText("Failed to load book details")).toBeInTheDocument();
+    expect(screen.getByText("Failed to load book details")).toBeVisible();
   });
 
   it("renders book details correctly", async () => {
@@ -121,14 +131,14 @@ describe("BookPage", () => {
       expect(screen.getByText("The Great Gatsby")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("F. Scott Fitzgerald")).toBeInTheDocument();
-    expect(screen.getByText("First published: 1925")).toBeInTheDocument();
-    expect(screen.getByText("CLASSIC LITERATURE")).toBeInTheDocument();
-    expect(screen.getByText("AMERICAN NOVEL")).toBeInTheDocument();
-    expect(screen.getByText("JAZZ AGE")).toBeInTheDocument();
+    expect(screen.getByText("F. Scott Fitzgerald")).toBeVisible();
+    expect(screen.getByText("First published: 1925")).toBeVisible();
+    expect(screen.getByText("CLASSIC LITERATURE")).toBeVisible();
+    expect(screen.getByText("AMERICAN NOVEL")).toBeVisible();
+    expect(screen.getByText("JAZZ AGE")).toBeVisible();
     expect(
       screen.getByText("A novel about the American Dream in the Jazz Age.")
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it("renders message when no book details are available", async () => {
@@ -143,7 +153,7 @@ describe("BookPage", () => {
       renderWithRouter("OL12345W");
     });
 
-    expect(screen.getByText("No book details available.")).toBeInTheDocument();
+    expect(screen.getByText("No book details available.")).toBeVisible();
   });
 
   it("renders message when no book key is provided", async () => {
@@ -151,6 +161,6 @@ describe("BookPage", () => {
       renderWithRouter();
     });
 
-    expect(screen.getByText("No book key provided")).toBeInTheDocument();
+    expect(screen.getByText("No book key provided")).toBeVisible();
   });
 });

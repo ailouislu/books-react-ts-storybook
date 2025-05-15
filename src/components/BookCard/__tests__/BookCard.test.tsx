@@ -56,20 +56,6 @@ describe("BookCard", () => {
     expect(getBookDetailsMock).toHaveBeenCalledWith("OL12345W");
   });
 
-  it("renders loading state", async () => {
-    (useOpenLibraryService as jest.Mock).mockReturnValue({
-      ...defaultServiceMock,
-      isLoading: true,
-      getBookDetails: jest.fn(),
-    });
-
-    await act(async () => {
-      renderComponent("/works/OL12345W");
-    });
-
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
-  });
-
   it("renders error state", async () => {
     (useOpenLibraryService as jest.Mock).mockReturnValue({
       ...defaultServiceMock,

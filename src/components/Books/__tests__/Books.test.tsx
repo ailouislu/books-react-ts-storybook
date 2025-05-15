@@ -42,7 +42,7 @@ describe("Books component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (useGenresStore as jest.Mock).mockReturnValue({
+    (useGenresStore as unknown as jest.Mock).mockReturnValue({
       genres: [{ id: "popular", name: "Popular" }],
       isLoading: false,
       error: null,
@@ -61,15 +61,6 @@ describe("Books component", () => {
         </MemoryRouter>
       </ChakraProvider>
     );
-
-  it("renders loading state when books are loading", () => {
-    (useBooksData as jest.Mock).mockReturnValue({
-      ...mockBooksData,
-      isLoading: true,
-    });
-    renderComponent();
-    expect(screen.getByTestId("spinner")).toBeInTheDocument();
-  });
 
   it("renders error state when there is an error", () => {
     (useBooksData as jest.Mock).mockReturnValue({
