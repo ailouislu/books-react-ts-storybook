@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"; // Import act
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthorDetails } from "../AuthorDetails";
 import { useOpenLibraryService } from "../../../hooks/useOpenLibraryService";
@@ -59,6 +59,14 @@ jest.mock("@chakra-ui/react", () => {
     __esModule: true,
     ...mod,
     Spinner: () => <div data-testid="spinner">Loading...</div>,
+    Skeleton: (props: any) => {
+      const { noOfLines, spacing, ...restProps } = props;
+      return <div data-testid="skeleton" {...restProps}>Loading skeleton</div>;
+    },
+    SkeletonText: (props: any) => {
+      const { noOfLines, spacing, ...restProps } = props;
+      return <div data-testid="skeleton-text" {...restProps}>Loading text skeleton</div>;
+    },
     useBreakpointValue: (vals: any) => vals.base,
   };
 });
@@ -66,6 +74,23 @@ jest.mock("@chakra-ui/react", () => {
 describe("AuthorDetails", () => {
   beforeEach(() => {
     mockUseOpenLibraryService.mockReturnValue(createMockReturnValue());
+  });
+
+  it("renders loading skeleton when isLoading is true", () => {
+    mockUseOpenLibraryService.mockReturnValue(
+      createMockReturnValue({ isLoading: true, author: null })
+    );
+    render(
+      <ChakraProvider>
+        <MemoryRouter initialEntries={["/author/OL23919A"]}>
+          <Routes>
+            <Route path="/author/:authorId" element={<AuthorDetails />} />
+          </Routes>
+        </MemoryRouter>
+      </ChakraProvider>
+    );
+    expect(screen.getAllByTestId("skeleton")).toHaveLength(2);
+    expect(screen.getAllByTestId("skeleton-text")).toHaveLength(2);
   });
 
   it("renders error state", () => {

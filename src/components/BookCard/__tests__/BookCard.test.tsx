@@ -13,6 +13,14 @@ jest.mock("@chakra-ui/react", () => {
     __esModule: true,
     ...actual,
     Image: (props: any) => <img {...props} data-testid="book-image" />,
+    Skeleton: (props: any) => {
+      const { noOfLines, spacing, ...restProps } = props;
+      return <div data-testid="skeleton" {...restProps}>Loading skeleton</div>;
+    },
+    SkeletonText: (props: any) => {
+      const { noOfLines, spacing, ...restProps } = props;
+      return <div data-testid="skeleton-text" {...restProps}>Loading text skeleton</div>;
+    },
   };
 });
 
@@ -39,6 +47,21 @@ describe("BookCard", () => {
       ...defaultServiceMock,
     });
     jest.clearAllMocks();
+  });
+
+  it("renders loading skeleton when isLoading is true", async () => {
+    (useOpenLibraryService as jest.Mock).mockReturnValue({
+      ...defaultServiceMock,
+      isLoading: true,
+      getBookDetails: jest.fn(),
+    });
+
+    await act(async () => {
+      renderComponent("/works/OL12345W");
+    });
+
+    expect(screen.getAllByTestId("skeleton")).toHaveLength(2);
+    expect(screen.getByTestId("skeleton-text")).toBeInTheDocument();
   });
 
   it("calls getBookDetails with proper book key", async () => {
@@ -106,7 +129,6 @@ describe("BookCard", () => {
       renderComponent("/works/OL12345W");
     });
 
-    // Use waitFor for async operations
     await waitFor(() => {
       expect(screen.getByTestId("book-image")).toHaveAttribute(
         "src",
