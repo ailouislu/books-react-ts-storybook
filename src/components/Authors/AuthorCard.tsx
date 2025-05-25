@@ -15,9 +15,10 @@ import { Author } from "../Books.type";
 
 interface AuthorCardProps {
   author: Author;
+  onAuthorClick?: (authorKey: string) => void;
 }
 
-const AuthorCard: React.FC<AuthorCardProps> = ({ author }) => {
+const AuthorCard: React.FC<AuthorCardProps> = ({ author, onAuthorClick }) => {
   const navigate = useNavigate();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -111,8 +112,10 @@ const AuthorCard: React.FC<AuthorCardProps> = ({ author }) => {
   }, [imageUrl, author.key]);
 
   const handleClick = useCallback(() => {
-    navigate(`/authors/${author.key}`);
-  }, [navigate, author.key]);
+    if (onAuthorClick) {
+      onAuthorClick(author.key);
+    } else navigate(`/authors/${author.key}`);
+  }, [onAuthorClick, navigate, author.key]);
 
   return (
     <Box
