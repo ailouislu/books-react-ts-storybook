@@ -1,9 +1,28 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ChakraProvider } from "@chakra-ui/react";
+import { BrowserRouter } from "react-router-dom";
 import AuthorList from "../AuthorList";
 import { useInView } from "react-intersection-observer";
 
 jest.mock("react-intersection-observer");
+
+const mockAuthorCardClick = jest.fn();
+
+jest.mock("../AuthorCard", () => {
+  return function MockAuthorCard({ author }: { author: any }) {
+    return (
+      <div
+        data-testid="author-card"
+        onClick={() => {
+          mockAuthorCardClick(author.key);
+        }}
+      >
+        <div data-testid="avatar">{author.name}</div>
+        <div>{author.name}</div>
+      </div>
+    );
+  };
+});
 
 jest.mock("@chakra-ui/react", () => {
   const actual = jest.requireActual("@chakra-ui/react");
@@ -12,10 +31,18 @@ jest.mock("@chakra-ui/react", () => {
     ...actual,
     Avatar: (props: any) => {
       const { name, src, ...restProps } = props;
-      return <div data-testid="avatar" {...restProps}>{name}</div>;
+      return (
+        <div data-testid="avatar" {...restProps}>
+          {name}
+        </div>
+      );
     },
     Spinner: (props: any) => {
-      return <div data-testid="spinner" {...props}>Loading...</div>;
+      return (
+        <div data-testid="spinner" {...props}>
+          Loading...
+        </div>
+      );
     },
   };
 });
@@ -52,6 +79,7 @@ describe("AuthorList", () => {
   beforeEach(() => {
     mockOnLoadMore.mockClear();
     mockOnAuthorClick.mockClear();
+    mockAuthorCardClick.mockClear();
     mockUseInView.mockReturnValue({
       ref: jest.fn(),
       inView: false,
@@ -68,9 +96,11 @@ describe("AuthorList", () => {
     };
 
     return render(
-      <ChakraProvider>
-        <AuthorList {...defaultProps} {...props} />
-      </ChakraProvider>
+      <BrowserRouter>
+        <ChakraProvider>
+          <AuthorList {...defaultProps} {...props} />
+        </ChakraProvider>
+      </BrowserRouter>
     );
   };
 
@@ -80,16 +110,18 @@ describe("AuthorList", () => {
     expect(screen.getAllByText("J.K. Rowling")).toHaveLength(2);
     expect(screen.getAllByText("Stephen King")).toHaveLength(2);
     expect(screen.getAllByText("George Orwell")).toHaveLength(2);
-    expect(screen.getAllByTestId("avatar")).toHaveLength(3);
+    expect(screen.getAllByTestId("author-card")).toHaveLength(3);
   });
 
-  it("calls onAuthorClick when author is clicked", () => {
+  it("calls onAuthorClick when author is clicked", async () => {
     renderComponent();
 
-    const authorElements = screen.getAllByText("J.K. Rowling");
-    fireEvent.click(authorElements[0].closest("div"));
+    const authorCard = screen.getAllByTestId("author-card")[0];
+    fireEvent.click(authorCard);
 
-    expect(mockOnAuthorClick).toHaveBeenCalledWith("/authors/OL23919A");
+    await waitFor(() => {
+      expect(mockAuthorCardClick).toHaveBeenCalledWith("/authors/OL23919A");
+    });
   });
 
   it("does not render spinner when hasMore is false and not loading", () => {
@@ -207,7 +239,7 @@ describe("AuthorList", () => {
       authors: [],
     });
 
-    expect(screen.queryByTestId("avatar")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("author-card")).not.toBeInTheDocument();
     expect(screen.queryByText("J.K. Rowling")).not.toBeInTheDocument();
   });
 
@@ -217,6 +249,6 @@ describe("AuthorList", () => {
     });
 
     expect(screen.getAllByText("George Orwell")).toHaveLength(2);
-    expect(screen.getByTestId("avatar")).toBeInTheDocument();
+    expect(screen.getByTestId("author-card")).toBeInTheDocument();
   });
 });

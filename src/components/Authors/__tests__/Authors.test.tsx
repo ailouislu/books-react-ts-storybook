@@ -17,15 +17,35 @@ jest.mock("../../GenreList", () => {
   return function GenreList({ onGenreSelect }: any) {
     return (
       <div data-testid="genre-list">
-        <button onClick={() => onGenreSelect({ id: "fiction", name: "Fiction" })}>
+        <button
+          onClick={() => onGenreSelect({ id: "fiction", name: "Fiction" })}
+        >
           Fiction
         </button>
       </div>
     );
   };
 });
+
 jest.mock("../AuthorList", () => {
-  return function AuthorList({ authors, onAuthorClick }: any) {
+  return function AuthorList({
+    authors,
+    onAuthorClick,
+    isInitialLoading,
+  }: any) {
+    if (isInitialLoading) {
+      return (
+        <div data-testid="author-list">
+          {Array.from({ length: 9 }, (_, index) => (
+            <div key={index}>
+              <div data-testid="skeleton-circle">Loading circle skeleton</div>
+              <div data-testid="skeleton">Loading skeleton</div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     return (
       <div data-testid="author-list">
         {authors.map((author: any) => (
@@ -45,11 +65,19 @@ jest.mock("@chakra-ui/react", () => {
     ...actual,
     Skeleton: (props: any) => {
       const { noOfLines, spacing, ...restProps } = props;
-      return <div data-testid="skeleton" {...restProps}>Loading skeleton</div>;
+      return (
+        <div data-testid="skeleton" {...restProps}>
+          Loading skeleton
+        </div>
+      );
     },
     SkeletonCircle: (props: any) => {
       const { noOfLines, spacing, ...restProps } = props;
-      return <div data-testid="skeleton-circle" {...restProps}>Loading circle skeleton</div>;
+      return (
+        <div data-testid="skeleton-circle" {...restProps}>
+          Loading circle skeleton
+        </div>
+      );
     },
   };
 });
@@ -91,7 +119,9 @@ describe("Authors", () => {
 
   beforeEach(() => {
     (useAuthorsData as jest.Mock).mockReturnValue(defaultAuthorsData);
-    (useGenresStore as unknown as jest.Mock).mockReturnValue(defaultGenresStore);
+    (useGenresStore as unknown as jest.Mock).mockReturnValue(
+      defaultGenresStore
+    );
     mockNavigate.mockClear();
   });
 
@@ -123,9 +153,11 @@ describe("Authors", () => {
 
     expect(screen.getByText("J.K. Rowling")).toBeInTheDocument();
     expect(screen.getByText("Stephen King")).toBeInTheDocument();
-    expect(screen.getByText((content, element) => {
-      return element?.textContent === "Showing 2 of 2 authors";
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((content, element) => {
+        return element?.textContent === "Showing 2 of 2 authors";
+      })
+    ).toBeInTheDocument();
   });
 
   it("renders error state when there is an error and no authors", () => {
@@ -147,9 +179,11 @@ describe("Authors", () => {
     fireEvent.change(searchInput, { target: { value: "Rowling" } });
 
     await waitFor(() => {
-      expect(screen.getByText((content, element) => {
-        return element?.textContent === "Showing 1 of 2 authors";
-      })).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return element?.textContent === "Showing 1 of 2 authors";
+        })
+      ).toBeInTheDocument();
     });
   });
 
@@ -160,7 +194,9 @@ describe("Authors", () => {
     fireEvent.change(searchInput, { target: { value: "NonExistent" } });
 
     await waitFor(() => {
-      expect(screen.getByText("No authors match.")).toBeInTheDocument();
+      expect(
+        screen.getByText("No authors match your search.")
+      ).toBeInTheDocument();
     });
   });
 

@@ -9,8 +9,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Skeleton,
-  SkeletonCircle,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorsData } from "../../hooks/useAuthorsData";
@@ -80,32 +78,20 @@ const Authors: React.FC<AuthorsProps> = ({ subject }) => {
             Showing <strong>{filtered.length}</strong> of{" "}
             <strong>{total}</strong> authors
           </Box>
-          {isLoading && authors.length === 0 && (
-            <Center>
-              <Grid
-                templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-                gap={6}
-                width="100%"
-              >
-                {[...Array(9)].map((_, index) => (
-                  <Box key={index} p={4} textAlign="center">
-                    <SkeletonCircle size="20" mb={2} />
-                    <Skeleton height="20px" width="80%" mx="auto" />{" "}
-                  </Box>
-                ))}
-              </Grid>
-            </Center>
-          )}
+
           {error && authors.length === 0 && (
             <Center color="red.500">{error}</Center>
           )}
-          {filtered.length === 0 && !isLoading && (
-            <Center>No authors match.</Center>
+
+          {filtered.length === 0 && !isLoading && authors.length > 0 && (
+            <Center>No authors match your search.</Center>
           )}
+
           <AuthorList
             authors={filtered}
             hasMore={hasMore}
-            isLoadingMore={isLoading}
+            isLoadingMore={isLoading && authors.length > 0}
+            isInitialLoading={isLoading && authors.length === 0}
             onLoadMore={loadMore}
             onAuthorClick={(key) => navigate(`/authors/${key}`)}
           />
